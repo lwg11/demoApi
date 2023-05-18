@@ -153,9 +153,10 @@ router.post('/register', (req, res) => {
             throw new Exception(-1, '该用户已注册')
         }
         else {
+            console.log('params-->',params);
 
             res.json({ resultCode: 0, resultInfo: '注册成功' })
-            
+
             // let userParams = {
             //     userId: orderCode('S'),
             //     // userNo: orderCode('S'),
