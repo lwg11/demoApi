@@ -7,16 +7,15 @@ const async = require("async");
  * @param {*} params 
  * @returns 
  */
- function sqlPromise(query,params) {
-   return new Promise((resolve,reject) => {
-    console.log("sqlPromise---query-->:",query);
-    console.log("sqlPromise---params-->:",params);
-     sql.query(query,params,(err,result) => {
-       resolve({error:err,result:result})
-     })
-   })
- }
- function execTrans(sqlparamsEntities, callback) {
+function sqlPromise(query, params) {
+  return new Promise((resolve, reject) => {
+    sql.query(query, params, (err, result) => {
+      resolve({ error: err, result: result })
+    })
+  })
+}
+
+function execTrans(sqlparamsEntities, callback) {
   sql.getConnection(function (err, connection) {
     if (err) {
       return callback(err, null);
@@ -31,7 +30,7 @@ const async = require("async");
           var sql = sql_param.sql;
           var param = sql_param.params;
           connection.query(sql, param, function (tErr, rows, fields) {
-            if (tErr) { 
+            if (tErr) {
               connection.rollback(function () {
                 console.log("事务失败，" + JSON.stringify(sql_param) + "，ERROR：" + tErr);
                 throw tErr;
@@ -43,7 +42,6 @@ const async = require("async");
         };
         funcAry.push(temp);
       });
-
       async.series(funcAry, function (err, result) {
         if (err) {
           connection.rollback(function (err) {
@@ -75,13 +73,13 @@ const async = require("async");
  * @param {*} sqlparamsEntities 
  * @returns 
  */
- function sqlExecTransPromise(sqlparamsEntities) {
-   console.log("sqlparamsEntities:",JSON.stringify(sqlparamsEntities));
-  return new Promise((resolve,reject) => {
-    execTrans(sqlparamsEntities,(err) => {
+function sqlExecTransPromise(sqlparamsEntities) {
+  console.log("sqlparamsEntities:", JSON.stringify(sqlparamsEntities));
+  return new Promise((resolve, reject) => {
+    execTrans(sqlparamsEntities, (err) => {
       resolve(err)
     })
   })
 }
 
- module.exports = {sqlPromise,execTrans,sqlExecTransPromise}
+module.exports = { sqlPromise, execTrans, sqlExecTransPromise }

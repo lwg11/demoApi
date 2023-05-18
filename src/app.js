@@ -14,7 +14,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-var usersLogin = require('./routes/login');
 var usersRoutes = require('./routes/index');
 
 
@@ -28,7 +27,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', usersLogin);
 app.use('/api', usersRoutes);
 
 

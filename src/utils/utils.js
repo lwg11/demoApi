@@ -1,3 +1,25 @@
+function orderCode() {
+    var orderCode = '';
+    for (var i = 0; i < 6; i++) //6位随机数，用以加在时间戳后面。
+    {
+        orderCode += Math.floor(Math.random() * 10);
+    }
+    orderCode = new Date().getTime() + orderCode;  //时间戳，用来生成订单号。
+    console.log(orderCode)
+    return orderCode;
+}
+
+const findOptionFormat = (findOptions) => {
+    if (isNull(findOptions)) {
+        return ''
+    } else {
+        return " AND " + findOptions.map(o => {
+            return `${o.key} ${isNull(o.type) ? '= ? ' : o.type === 'original' ? '' : `${o.type} ? `}  `
+        }).join(' AND ')
+    }
+
+}
+
 function toMenuTree(data) {
     // 删除 所有 children,以防止多次调用
     data.forEach(function (item) {
@@ -53,4 +75,4 @@ function getClientIP(req) {
     return ip.replace('::ffff:', '');
 };
 
-module.exports = { getClientIP, isNull, toMenuTree }
+module.exports = { getClientIP, isNull, toMenuTree, findOptionFormat, orderCode }
