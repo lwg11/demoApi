@@ -1,42 +1,30 @@
-const { findOptionFormat } = require("../../utils/utils");
+/**
+ * 查询用户信息
+ * @userNo 用户账号
+ * @passWord 用户密码
+ */
+const userList = 'select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId from tb_system_user where userNo = ? and passWord = ?'
 
-// const  updateByPhone = `update ts_o_system_user set ? where phone= ? and delFlag = 0 `
-// const  updateByUserNo = `update ts_o_system_user set ? where userNo= ? and delFlag = 0 `
-// const  createOne = `insert into  ts_o_system_user set ?  `
-
-// const userByPhone = ` select 
-// refId,
-// userNo,
-// userName,
-// phone,
-// realName,
-// email,
-// headImage,
-// departId,
-// isActive,
-// roleId,
-// createTime,
-// creator,
-// updateTime,
-// updator,
-// orgCode,
-// remark
-// from ts_o_system_user
-// where phone = ? 
-// and delFlag= 0
-// `
-
-// module.exports = {updateByPhone,userByPhone,updateByUserNo,createOne };
-
-
-const userList = `select userId,userName,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
-from tb_system_user where userName = ? and delFlag= 0`
-
-const createOne = `insert into  tb_system_user set ?  `
-
-const userByPhone = ` select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,
+/**
+ * 查询用户信息 用于登录账号时查询该手机号是否已经注册
+ * @phone 用户手机
+ * @passWord 用户密码
+ */
+const userByPhone = `select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,
 isActive,organizationId,roleId
 from tb_system_user where phone = ? and delFlag= 0`
 
 
-module.exports = { userList, createOne, userByPhone };
+/**
+ * 注册用户信息
+ */
+const registerOne = `insert into  tb_system_user set ?  `
+
+/**
+ * 新增日志信息 登录日志
+ */
+const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator) values (?,?,sysdate(),?)`;
+
+
+
+module.exports = { userList, userByPhone, registerOne,logAddOne };

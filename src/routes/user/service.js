@@ -2,20 +2,25 @@ const model = require('./model');
 const { sqlPromise } = require('../../utils/sqlPromise');
 
 //根据用户名称查询
-const userList = (params, findOptions) => {
-    return sqlPromise(model.userList(findOptions), params)
+const userList = (params) => {
+    return sqlPromise(model.userList, params)
 };
 
-//
-// const userByPhone = (params, findOptions) => {
-//     console.log('params-->',params);
-//     return sqlPromise(model.userByPhone(params), params)
-// };
-
+// 查询用户信息 用于登录账号时查询该手机号是否已经注册
 const userByPhone = (params) => {
     return sqlPromise(model.userByPhone, params)
 };
 
-module.exports = { userList, userByPhone }
+//新增 注册用户信息
+const registerOne = (params) => {
+    return sqlPromise(model.registerOne, params)
+};
+
+//新增登录日志
+const logAddOne = (params) => {
+    return sqlPromise(model.logAddOne, params)
+};
+
+module.exports = { userList, userByPhone, registerOne ,logAddOne}
 
 
