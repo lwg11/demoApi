@@ -21,22 +21,17 @@ router.post('/login', (req, res) => {
     const { userNo, passWord } = req.body;
     let remark = "";
     let ip = getClientIP(req);
-    console.log("ip:", ip);
+    // console.log("ip:", ip);
     let logSqlStr = `insert into tb_system_logs (ip,remark,createTime,creator) values (?,?,sysdate(),?)`;
     let sqlStr = 'select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId from tb_system_user where userNo = ? and passWord = ?'
-    
-    let params = {
-        userNo, passWord
-    }
-
+   
+    let params = [userNo,passWord];
     userService.userList(params).then(results => {
         if (results.error) {
             res.json({ resultCode: -1, resultInfo: sqlError[results.error.errno] })
         } else if (results && results.length == 0) {
             remark = "账户或密码错误";
-            let params = {
-                ip, remark, userNo
-            }
+            let params = [ ip, remark, userNo]
             userService.registerOne(params).then(result =>{
                 if(result.error){
                     res.json({resultCode: -1,resultInfo:sqlError[results.error.errno]})
@@ -44,18 +39,15 @@ router.post('/login', (req, res) => {
                 res.json({ resultCode: -1, resultInfo: "账户或密码错误，忘记密码请与管理人员联系。" })
             })
         }else{
-            let currentUser = results[0]
+            let currentUser = results.result[0]
             if (currentUser.isActive != 1) {
                 res.json({ resultCode: -1, resultInfo: "该用户未启用,请联系管理员" })
             } else{
                 remark = "登录成功";
-                let params = {
-                    ip, remark, userNo
-                }
-                console.log('params--->',params);
+                let params = [ ip, remark, userNo]
                 userService.registerOne(params).then(result =>{
                     if(result.error){
-                        res.json({resultCode: -1,resultInfo:sqlError[results.error.errno]})
+                        res.json({resultCode: -1,resultInfo:sqlError[result.error.errno]})
                     }
 
                 })
@@ -136,6 +128,10 @@ router.post('/login', (req, res) => {
     //         }
     //     }
     // })
+
+
+
+
 })
 
 /**

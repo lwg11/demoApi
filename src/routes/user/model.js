@@ -18,7 +18,8 @@ from tb_system_user where phone = ? and delFlag= 0`
 /**
  * 注册用户信息
  */
-const registerOne = `insert into  tb_system_user set ?  `
+// const registerOne = `insert into  tb_system_user set ?  `
+const registerOne = `insert into tb_system_logs (ip,remark,createTime,creator) values (?,?,sysdate(),?)`
 
 /**
  * 新增日志信息 登录日志
