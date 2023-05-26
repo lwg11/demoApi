@@ -14,6 +14,14 @@ const userByPhone = `select userId,userNo,name,passWord,phone,email,headImage,cr
 isActive,organizationId,roleId
 from tb_system_user where phone = ? and delFlag= 0`
 
+//查询角色表信息和菜单表信息
+const roleMenuList = `select m.menuId,m.menuName,m.menuCode,m.menuIcon,m.parentId,m.menuState,m.menuType,m.rightCode, m.menuSort 
+from tb_system_role_menu r
+left join tb_system_menu m on r.menuId=m.menuId
+where 1=1
+and m.menuState=1 
+and r.roleId= ?
+order by  m.menuSort asc`;
 
 /**
  * 注册用户信息
@@ -28,4 +36,4 @@ const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator) val
 
 
 
-module.exports = { userList, userByPhone, registerOne,logAddOne };
+module.exports = { userList, userByPhone, registerOne, logAddOne, roleMenuList };
