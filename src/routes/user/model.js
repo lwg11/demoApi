@@ -3,7 +3,10 @@
  * @userNo 用户账号
  * @passWord 用户密码
  */
-const userList = 'select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId from tb_system_user where userNo = ? and passWord = ?'
+// const userList = `select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
+// from tb_system_user where userNo = ? and passWord = ?`
+const userList = `select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
+from tb_system_user where (userNo = ? or phone = ?) and passWord = ?`
 
 /**
  * 查询用户信息 用于登录账号时查询该手机号是否已经注册
@@ -26,13 +29,14 @@ order by  m.menuSort asc`;
 /**
  * 注册用户信息
  */
-// const registerOne = `insert into  tb_system_user set ?  `
-const registerOne = `insert into tb_system_logs (ip,remark,createTime,creator) values (?,?,sysdate(),?)`
+const registerOne = `insert into  tb_system_user set ?  `
+// const registerOne = `insert into tb_system_logs (ip,remark,createTime,creator) 
+// values (?,?,sysdate(),?)`
 
 /**
  * 新增日志信息 登录日志
  */
-const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator) values (?,?,sysdate(),?)`;
+const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator,phone) values (?,?,sysdate(),?,?)`;
 
 
 

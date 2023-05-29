@@ -15,19 +15,18 @@ const secretKey = 'dolphin.2020';
 /**
  * 账户登录
  */
-
 router.post('/login', (req, res) => {
-    const { userNo, passWord } = req.body;
+    const { userNo, phone, passWord } = req.body;
     let remark = "";
     let ip = getClientIP(req);
-    let params = [userNo, passWord];
+    let params = [userNo, phone, passWord];
     userService.userList(params).then(results => {
         if (results.error) {
             res.json({ resultCode: -1, resultInfo: sqlError[results.error.errno] })
         } else if (results && results.result.length == 0) {
             remark = "账户或密码错误";
-            let params = [ip, remark, userNo]
-            userService.registerOne(params).then(result => {
+            let params = [ip, remark, userNo, phone]
+            userService.logAddOne(params).then(result => {
                 if (result.error) {
                     res.json({ resultCode: -1, resultInfo: sqlError[results.error.errno] })
                 }
@@ -40,8 +39,8 @@ router.post('/login', (req, res) => {
                 res.json({ resultCode: -1, resultInfo: "该用户未启用,请联系管理员" })
             } else {
                 remark = "登录成功";
-                let params = [ip, remark, userNo]
-                userService.registerOne(params).then(result => {
+                let params = [ip, remark, userNo, phone]
+                userService.logAddOne(params).then(result => {
                     if (result.error) {
                         res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
                     }
@@ -64,7 +63,7 @@ router.post('/login', (req, res) => {
                 user.menuList = [];
                 if (!isNull(currentUser.roleId)) {
                     userService.roleMenuList(currentUser.roleId).then(result => {
-                        console.log('result---->',result);
+                        console.log('result---->', result);
                         if (result.error) {
                             res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] });
                         } else {
@@ -80,88 +79,9 @@ router.post('/login', (req, res) => {
                 } else {
                     res.json({ resultCode: -1, resultInfo: "用户暂未绑定角色" });
                 }
-
             }
         }
     })
-
-
-    // sql.query(sqlStr, [userNo, passWord], function (err, results) {
-    //     if (err) {
-    //         console.log("登录--err:", err);
-    //         res.json({ resultCode: -1, resultInfo: sqlError[err.errno] })
-    //     } else if (results && results.length == 0) {
-    //         console.log("[userNo,  passWord]:", [userNo, passWord]);
-    //         remark = "账户或密码错误";
-    //         sql.query(logSqlStr, [ip, remark, userNo], function (err) {
-    //             if (err) {
-    //                 console.error("==>出错了:", err);
-    //                 res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
-    //             }
-    //             res.json({ resultCode: -1, resultInfo: "账户或密码错误，忘记密码请与管理人员联系。" })
-    //         })
-    //     }
-    //     else {
-    //         let currentUser = results[0]
-    //         if (currentUser.isActive != 1) {
-    //             res.json({ resultCode: -1, resultInfo: "该用户未启用,请联系管理员" })
-    //         }
-    //         else {
-    //             remark = "登录成功";
-    //             sql.query(logSqlStr, [ip, remark, userNo], function (err) {
-    //                 if (err) {
-    //                     console.error("==>出错了:", err);
-    //                     res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
-    //                 }
-    //             })
-    //             const user = {
-    //                 userId: results[0].userId,
-    //                 userNo: results[0].userNo,
-    //                 name: results[0].name
-    //             }
-    //             const token = jwt.sign(user, secretKey, { expiresIn: expiresIn });
-
-    //             user.phone = results[0].phone;
-    //             user.email = results[0].email;
-    //             user.headImage = results[0].headImage;
-    //             user.createTime = results[0].createTime;
-    //             user.updateTime = results[0].updateTime;
-    //             user.isActive = results[0].isActive;
-
-    //             user.menuList = [];
-    //             if (!isNull(results[0].roleId)) {
-    //                 let sqlStr = `select m.menuId,m.menuName,m.menuCode,m.menuIcon,m.parentId,m.menuState,m.menuType,m.rightCode, m.menuSort 
-    // 			from tb_system_role_menu r
-    // 			left join tb_system_menu m on r.menuId=m.menuId
-    // 			where 1=1
-    // 			and m.menuState=1 
-    // 			and r.roleId= ?
-    // 			order by  m.menuSort asc`;
-    //                 sql.query(sqlStr, [results[0].roleId], function (err, data) {
-    //                     if (err) {
-    //                         console.error("==>出错了:", err);
-    //                         res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
-    //                     } else {
-    //                         // console.log("data:", data);
-    //                         if (isNull(data)) {
-    //                             res.json({ resultCode: -1, resultInfo: "用户未授权" });
-    //                         }
-    //                         else {
-    //                             user.menuList = toMenuTree(data);
-    //                             res.json({ resultCode: 0, resultInfo: "SUCCESS", data: { token, ...user } });
-    //                         }
-    //                     }
-    //                 });
-    //             } else {
-    //                 res.json({ resultCode: -1, resultInfo: "用户暂未绑定角色" });
-    //             }
-    //         }
-    //     }
-    // })
-
-
-
-
 })
 
 /**
