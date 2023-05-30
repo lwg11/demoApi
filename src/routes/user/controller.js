@@ -13,6 +13,36 @@ const expiresIn = 3 * 60;
 const secretKey = 'dolphin.2020';
 
 /**
+ * 
+ * @api {post} /api/user user
+ * @apiName addUser
+ * @apiGroup usergroup
+ * @apiVersion  1.0.0
+ * 
+ * 
+ * @apiParam  {String} username 用户名
+ * @apiParam  {String} password 密码
+ * @apiParam  {Number} age 年龄
+ * @apiParam  {File} avatar 头像
+ * 
+ * @apiSuccess (200) {number} ok 表示成功字段
+ * 
+ * @apiParamExample  {type} Request-Example:
+ * {
+ *     username : "yang",
+ *     password:"123456",
+ *     age:100,
+ *     avatar:File
+ * } 
+ * 
+ * @apiSuccessExample {type} Success-Response:
+ * {
+ *      ok:1
+ * }
+ * 
+ */
+
+/**
  * 账户登录
  */
 router.post('/login', (req, res) => {
