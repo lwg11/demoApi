@@ -26,6 +26,11 @@ const logAddOne = (params) => {
     return sqlPromise(model.logAddOne, params)
 };
 
-module.exports = { userList, userByPhone, registerOne, logAddOne, roleMenuList }
+//查询日志
+const logs = () => {
+    return sqlPromise(model.logs)
+};
+
+module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList }
 
 

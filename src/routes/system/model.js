@@ -38,6 +38,9 @@ const registerOne = `insert into  tb_system_user set ?  `
  */
 const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator,phone) values (?,?,sysdate(),?,?)`;
 
+// 查询日志
+const logs = `select refID,ip,remark,createTime,creator 
+	from tb_system_logs
+	order by createTime desc`
 
-
-module.exports = { userList, userByPhone, registerOne, logAddOne, roleMenuList };
+module.exports = { userList, userByPhone, registerOne, logAddOne,logs, roleMenuList };

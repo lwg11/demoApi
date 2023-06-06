@@ -9,42 +9,36 @@ const userService = require('./service');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
-const expiresIn = 3 * 60;
+// const expiresIn = 3 * 60;
+const expiresIn = 30 * 24 * 60 * 60;
+
 const secretKey = 'dolphin.2020';
+const jwtMiddleWare = require('../../utils/middleWare');
+
 
 /**
- * 
- * @api {post} /api/user user
- * @apiName addUser
- * @apiGroup usergroup
- * @apiVersion  1.0.0
- * 
- * 
- * @apiParam  {String} username 用户名
- * @apiParam  {String} password 密码
- * @apiParam  {Number} age 年龄
- * @apiParam  {File} avatar 头像
- * 
- * @apiSuccess (200) {number} ok 表示成功字段
- * 
- * @apiParamExample  {type} Request-Example:
- * {
- *     username : "yang",
- *     password:"123456",
- *     age:100,
- *     avatar:File
- * } 
- * 
- * @apiSuccessExample {type} Success-Response:
- * {
- *      ok:1
+ * @api {post} http://localhost:9002/api/system/login 用户名/手机号码登录 
+ * @apiSampleRequest http://localhost:9002/api/system/login
+ * @apiDescription 用户名/手机号码登录  
+ * @apiName login
+ * @apiGroup System
+ * @apiParam {string} phone 用户名/手机号码
+ * @apiParam {string} passWord 密码
+ * @apiParamExample {json} Request-Example:
+ *    {
+ *      "phone": "",
+ * 		"passWord":""
+ *    }
+ * @apiSuccess {json} resp_result
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
  * }
- * 
+ * @apiVersion 1.0.0
  */
 
-/**
- * 账户登录
- */
 router.post('/login', (req, res) => {
     const { userNo, phone, passWord } = req.body;
     let remark = "";
@@ -93,7 +87,6 @@ router.post('/login', (req, res) => {
                 user.menuList = [];
                 if (!isNull(currentUser.roleId)) {
                     userService.roleMenuList(currentUser.roleId).then(result => {
-                        console.log('result---->', result);
                         if (result.error) {
                             res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] });
                         } else {
@@ -114,23 +107,32 @@ router.post('/login', (req, res) => {
     })
 })
 
+
+
+
 /**
- * 用户注册
- * @userId {string} 用户id
- * @userNo {string} 用户账户
- * @name {string} 姓名
- * @passWord {string} 密码
- * @phone {string} 手机
- * @email {string} 邮箱
- * @headImage {string} 用户头像
- * @createTime {datetime} 创建时间
- * @creator {string} 创建者
- * @updateTime {datetime} 更新时间
- * @updator {string} 更新者
- * @delFlag {int} 逻辑删除（0：未删除，1：已删除）
- * @isActive {int} 是否激活（0：未激活，1：激活）
- * @organizationId {int} 组织ID
- * @roleId {int} 角色编号 (1:管理员， 2：用户)
+ * @api {post} http://localhost:9002/api/system/register 用户名/手机号码注册
+ * @apiSampleRequest http://localhost:9002/api/system/register
+ * @apiDescription 用户名/手机号码注册 
+ * @apiName register
+ * @apiGroup System
+ * @apiParam {string} phone 用户名/手机号码
+ * @apiParam {string} name 用户姓名
+ * @apiParam {string} passWord 密码
+ * @apiParamExample {json} Request-Example:
+ *    {
+ *      "phone": "",
+ *      "name": "",
+ * 		"passWord":""
+ *    }
+ * @apiSuccess {json} resp_result
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
+ * }
+ * @apiVersion 1.0.0
  */
 
 router.post('/register', (req, res) => {
@@ -139,6 +141,7 @@ router.post('/register', (req, res) => {
     if (isNull(req.body.name)) throw new Exception(400, "姓名为必填参数");
     // if (isNull(req.body.passWord)) throw new Exception(400, "密码为必填参数");
     let userId = uuidv4();
+    let ip = getClientIP(req);
 
     let { userNo, name, passWord, phone, email, headImage, } = req.body
     let params = {
@@ -167,6 +170,13 @@ router.post('/register', (req, res) => {
                     console.log("注册出错了===>", result.error);
                     res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
                 } else {
+                    remark = "注册成功";
+                    let params = [ip, remark, userNo, phone]
+                    userService.logAddOne(params).then(result => {
+                        if (result.error) {
+                            res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
+                        }
+                    })
                     res.json({ resultCode: 0, resultInfo: '注册成功' })
                 }
             })
@@ -174,6 +184,43 @@ router.post('/register', (req, res) => {
     }).catch(e => {
         res.json({ resultCode: -1, resultInfo: e.message || e })
     });
+})
+
+/**
+ * @api {get} /system/logs 0.1.日志列表
+ * @apiHeader {string} [Authorization] 登录成功后返回token
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "Authorization": ""
+ *     } 
+ * @apiDescription  日志列表
+ * @apiName getLoginLogs
+ * @apiGroup System
+ * @apiSuccessExample {json} Success-Response:
+ * {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
+ * }
+ * @apiSampleRequest /system/logs
+ * @apiVersion 1.0.0
+ */
+
+router.get('/logs', jwtMiddleWare, (req, res) => {
+    let sqlStr = `select refID,ip,remark,createTime,creator 
+	from tb_system_logs
+	order by createTime desc`;
+    userService.logs().then(results => {
+        res.json({ resultCode: 0, resultInfo: "SUCCESS", data: results });
+    })
+    // sql.query(sqlStr, (err, results) => {
+    //     console.log('err--->',err);
+    // 	if(err) {
+    // 		console.error("==>出错了:",err);
+    // 		res.json({resultCode: -1, resultInfo:  sqlError[err.errno]});
+    // 	}
+    // 	res.json({resultCode: 0, resultInfo: "SUCCESS", data: results})
+    // })
 })
 
 module.exports = router;

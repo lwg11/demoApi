@@ -17,82 +17,62 @@ API文档生成工具apicdoc是一个基于注释生成API文档的工具，使�
 npm install apidoc -g
 ```
 
-2. 在代码中添加注释
+注释生成：
+apidoc根据注释生成文档，这就需要我们有好的注释规范。
+vscode有一个注释插件可以更方便的生成注释：ApiDoc Snippets
 
-在你的代码中添加以下格式的注释：
+常用的关键字
 
-```
-/**
- * @api {HTTP方法} /path 接口名称
- * @apiGroup 接口分组
- * @apiVersion 接口版本号
- * @apiDescription 接口描述
- *
- * @apiParam {参数类型} 参数名称 参数描述
- *
- * @apiSuccess {返回值类型} 返回值名称 返回值描述
- *
- * @apiError {错误码} 错误码描述
- */
-```
-
-其中包括以下字段：
-
-- `HTTP方法`：接口的HTTP方法，如GET、POST等。
-- `/path`：接口的URL路径。
-- `接口名称`：接口的名称。
-- `接口分组`：接口所属的分组。
-- `接口版本号`：接口的版本号。
-- `接口描述`：接口的描述信息。
-- `参数类型`：参数的数据类型。
-- `参数名称`：参数的名称。
-- `参数描述`：参数的描述信息。
-- `返回值类型`：返回值的数据类型。
-- `返回值名称`：返回值的名称。
-- `返回值描述`：返回值的描述信息。
-- `错误码`：错误码的标识。
-- `错误码描述`：错误码的描述信息。
-
-3. 生成API文档
-
-在你的代码目录下运行以下命令：
-
-```
-apidoc -i ./ -o ./doc
-```
-
-其中，`-i`参数指定了代码目录，`-o`参数指定了生成的文档目录。
-
-4. 查看API文档
-
-在生成的文档目录中打开`index.html`文件，就可以查看生成的API文档了。
+@apiVersion verison
+  接口版本，major.minor.patch的形式
+@api {method} path [title]
+  只有使用@api标注的注释块才会在解析之后生成文档，title会被解析为导航菜单(@apiGroup)下的小菜单
+  method如{POST GET}
+@apiGroup name
+  分组名称，被解析为导航栏菜单
+@apiName name
+  接口名称，在同一个@apiGroup下，名称相同的@api通过@apiVersion区分，否者后面@api会覆盖前面定义的@api
+@apiDescription text
+  接口描述，支持html语法
+  
+@apiIgnore [hint]
+  apidoc会忽略使用@apiIgnore标注的接口，hint为描述
+@apiSampleRequest url
+  接口测试地址以供测试，发送请求时，@api method必须为POST/GET等其中一种
+ 
+@apiDefine name [title] [description]
+  定义一个注释块(不包含@api)，配合@apiUse使用可以引入注释块
+  在@apiDefine内部不可以使用@apiUse
+@apiUse name
+  引入一个@apiDefine的注释块
+ 
+@apiParam [(group)] [{type}] [field=defaultValue] [description]
+@apiHeader [(group)] [{type}] [field=defaultValue] [description]
+@apiError [(group)] [{type}] field [description]
+@apiSuccess [(group)] [{type}] field [description]
+  用法基本类似，分别描述请求参数、头部，响应错误和成功
+  group表示参数的分组，type表示类型(不能有空格)，入参可以定义默认值(不能有空格)
+@apiParamExample [{type}] [title] example
+@apiHeaderExample [{type}] [title] example
+@apiErrorExample [{type}] [title] example
+@apiSuccessExample [{type}] [title] example
+  用法完全一致，但是type表示的是example的语言类型
+  example书写成什么样就会解析成什么样，所以最好是书写的时候注意格式化，(许多编辑器都有列模式，可以使用列模式快速对代码添加*号)
+  
+@apiPermission name
+  name必须独一无二，描述@api的访问权限，如admin/anyone
 
 
 
 
-如下的代码：
 
-/**
- * @api {GET} /user/:id 获取用户信息
- * @apiGroup User
- * @apiVersion 1.0.0
- * @apiDescription 获取用户信息接口
- *
- * @apiParam {String} id 用户ID
- *
- * @apiSuccess {String} name 用户名
- * @apiSuccess {Number} age 年龄
- *
- * @apiError 400 参数错误
- * @apiError 404 用户不存在
- */
-app.get('/user/:id', function(req, res) {
-  // 获取用户信息的代码
-});
+生成文档命令
+apidoc -i .\src\routes\ -o .\doc
 
-这段代码使用了apicdoc的注释格式，表示了一个获取用户信息的接口，它的HTTP方法是GET，路径是/user/:id，接口名称是“获取用户信息”，所属分组是“User”，版本是“1.0.0”，描述信息是“获取用户信息接口”；接口需要一个参数id，类型是String；接口返回的数据包括一个字符串类型的name和一个数字类型的age；接口可能返回400参数错误和404用户不存在的错误。
 
-接下来，你可以在终端中运行以下命令生成API文档：
+    "doc": "apidoc -i src/routes/ -o doc/"
 
-```
-apidoc -i ./ -o ./doc\n```\n\n这将在当前目录下生成一个名为doc的目录，其中包含了生成的API文档。在浏览器中打开doc目录下的index.html文件，就可以看到生成的API文档，其中包括了刚才我们编写的获取用户信息接口的信息。
+
+"apidoc": "apidoc -i ./src/routes/ -o ./doc"
+因为命令很长，已经在package.json封装了，启动命令如下：
+yarn apidoc
