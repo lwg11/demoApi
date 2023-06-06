@@ -187,7 +187,7 @@ router.post('/register', (req, res) => {
 })
 
 /**
- * @api {get} /system/logs 0.1.日志列表
+ * @api {get} http://localhost:9002/api/system/logs 0.1.日志列表
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -202,7 +202,7 @@ router.post('/register', (req, res) => {
  *    "resultInfo": "SUCCESS",
  *    "data": ""
  * }
- * @apiSampleRequest /system/logs
+ * @apiSampleRequest /api/system/logs
  * @apiVersion 1.0.0
  */
 
