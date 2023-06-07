@@ -43,4 +43,10 @@ const logs = `select refID,ip,remark,createTime,creator
 	from tb_system_logs
 	order by createTime desc`
 
-module.exports = { userList, userByPhone, registerOne, logAddOne,logs, roleMenuList };
+// 查询菜单列表
+const menu = `Select menuId,menuName,menuType,parentId,menuCode,rightCode,menuSort,menuUrl,menuIcon,menuState,createTime,creator,updateTime,updateTime 
+	from tb_system_menu 
+	where 1=1 
+	order by menuSort`
+
+module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, menu };

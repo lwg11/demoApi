@@ -5,7 +5,7 @@ const { getClientIP, isNull, toMenuTree, orderCode } = require('../../utils/util
 const sd = require('silly-datetime');
 const sqlError = require('../../utils/sqlError');
 const Exception = require('../../exception');
-const userService = require('./service');
+const userService = require('../tools/service');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
@@ -17,8 +17,8 @@ const jwtMiddleWare = require('../../utils/middleWare');
 
 
 /**
- * @api {post} http://localhost:9002/api/system/login 用户名/手机号码登录 
- * @apiSampleRequest http://localhost:9002/api/system/login
+ * @api {post} http://localhost:9002/api/system/user/login 用户名/手机号码登录 
+ * @apiSampleRequest http://localhost:9002/api/system/user/login
  * @apiDescription 用户名/手机号码登录  
  * @apiName login
  * @apiGroup System
@@ -107,12 +107,9 @@ router.post('/login', (req, res) => {
     })
 })
 
-
-
-
 /**
- * @api {post} http://localhost:9002/api/system/register 用户名/手机号码注册
- * @apiSampleRequest http://localhost:9002/api/system/register
+ * @api {post} http://localhost:9002/api/system/user/register 用户名/手机号码注册
+ * @apiSampleRequest http://localhost:9002/api/system/user/register
  * @apiDescription 用户名/手机号码注册 
  * @apiName register
  * @apiGroup System
@@ -186,41 +183,6 @@ router.post('/register', (req, res) => {
     });
 })
 
-/**
- * @api {get} http://localhost:9002/api/system/logs 0.1.日志列表
- * @apiHeader {string} [Authorization] 登录成功后返回token
- * @apiHeaderExample {json} Header-Example:
- *     {
- *       "Authorization": ""
- *     } 
- * @apiDescription  日志列表
- * @apiName getLoginLogs
- * @apiGroup System
- * @apiSuccessExample {json} Success-Response:
- * {
- *    "resultCode": 0,
- *    "resultInfo": "SUCCESS",
- *    "data": ""
- * }
- * @apiSampleRequest /api/system/logs
- * @apiVersion 1.0.0
- */
 
-router.get('/logs', jwtMiddleWare, (req, res) => {
-    let sqlStr = `select refID,ip,remark,createTime,creator 
-	from tb_system_logs
-	order by createTime desc`;
-    userService.logs().then(results => {
-        res.json({ resultCode: 0, resultInfo: "SUCCESS", data: results });
-    })
-    // sql.query(sqlStr, (err, results) => {
-    //     console.log('err--->',err);
-    // 	if(err) {
-    // 		console.error("==>出错了:",err);
-    // 		res.json({resultCode: -1, resultInfo:  sqlError[err.errno]});
-    // 	}
-    // 	res.json({resultCode: 0, resultInfo: "SUCCESS", data: results})
-    // })
-})
 
 module.exports = router;
