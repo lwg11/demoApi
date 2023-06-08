@@ -17,7 +17,7 @@ const jwtMiddleWare = require('../../utils/middleWare');
 
 
 /**
- * @api {post} http://localhost:9002/api/system/user/login 用户名/手机号码登录 
+ * @api {post} http://localhost:9002/api/system/user/login 0.2.用户名/手机号码登录 
  * @apiSampleRequest http://localhost:9002/api/system/user/login
  * @apiDescription 用户名/手机号码登录  
  * @apiName login
@@ -108,7 +108,7 @@ router.post('/login', (req, res) => {
 })
 
 /**
- * @api {post} http://localhost:9002/api/system/user/register 用户名/手机号码注册
+ * @api {post} http://localhost:9002/api/system/user/register 0.3.用户名/手机号码注册
  * @apiSampleRequest http://localhost:9002/api/system/user/register
  * @apiDescription 用户名/手机号码注册 
  * @apiName register

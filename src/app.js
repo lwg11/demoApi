@@ -26,7 +26,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api', usersRoutes);
+app.use('/api/', usersRoutes);
+
+/* 全局错误抛出 */
+app.use((error, req, res, next) => {
+	if (error) {
+		console.error("==>全局错误抛出error:",error);
+		// console.error("==>全局错误抛出next:",next);
+		if(error.status==401) {
+			res.json({ resultCode: 401, resultInfo: 'token无效，请重新登录'});
+		}
+		else if(error.status==403) {
+			res.json({ resultCode: 403, resultInfo: '登录已过期，请重新登录！'});
+		}else{
+			res.json({ resultCode: error.code, resultInfo: error.message});
+		} 
+	}
+});
 
 
 // catch 404 and forward to error handler
