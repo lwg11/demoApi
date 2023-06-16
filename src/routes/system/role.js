@@ -30,7 +30,7 @@ const sqlError=require('../../utils/sqlError');
  */
 router.get('/', jwtMiddleWare, (req, res) => {
 	let {roleName} = req.query
-	let sqlStr=`select roleId,roleCode,roleName,description,createTime,creator,updateTime,updator from ts_system_role  where 1=1  `
+	let sqlStr=`select roleId,roleCode,roleName,createTime,creator,updateTime,updator from ts_system_role  where 1=1  `
 	let params = []
 	if(!isNull(roleName)){
 		params.push(`%${roleName}%`)
@@ -66,8 +66,9 @@ router.get('/', jwtMiddleWare, (req, res) => {
  * @apiSampleRequest /system/role/active
  * @apiVersion 1.0.0
  */
+
 router.get('/active', jwtMiddleWare, (req, res) => {
-	sql.query(`select * from ts_system_role order where isActive = 1 order by roleId`, (err, results) => {
+	sql.query(`select * from ts_system_role where isActive = 1 order by roleId`, (err, results) => {
 		if (err) {
 			console.error("==>出错了:",err);
 			res.json({resultCode: -1, resultInfo:  sqlError[err.errno]});

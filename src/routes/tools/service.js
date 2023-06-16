@@ -36,6 +36,11 @@ const menu = () => {
     return sqlPromise(model.menu)
 };
 
-module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, menu }
+//查询菜单列表
+const role = () => {
+    return sqlPromise(model.role)
+};
+
+module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, menu, role }
 
 
