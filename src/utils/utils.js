@@ -1,3 +1,7 @@
+const pool = require('../config/db');
+const _ = require('lodash')
+const async = require("async");
+
 function orderCode() {
     var orderCode = '';
     for (var i = 0; i < 6; i++) //6位随机数，用以加在时间戳后面。
@@ -18,6 +22,74 @@ const findOptionFormat = (findOptions) => {
         }).join(' AND ')
     }
 
+}
+
+function _getNewSqlParamEntity(sql, params, callback) {
+    if (callback) {
+        return callback(null, {
+            sql: sql,
+            params: params
+        });
+    }
+    return {
+        sql: sql,
+        params: params
+    };
+}
+
+function execTrans(sqlparamsEntities, callback) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
+            return callback(err, null);
+        }
+        connection.beginTransaction(function (err) {
+            if (err) {
+                return callback(err, null);
+            }
+            var funcAry = [];
+            sqlparamsEntities.forEach(function (sql_param) {
+                var temp = function (cb) {
+                    var sql = sql_param.sql;
+                    var param = sql_param.params;
+                    connection.query(sql, param, function (tErr, rows, fields) {
+                        if (tErr) {
+                            connection.rollback(function () {
+                                console.log("事务失败，" + sql_param + "，ERROR：" + tErr);
+                                throw tErr;
+                            });
+                        } else {
+                            return cb(null, 'ok');
+                        }
+                    })
+                };
+                funcAry.push(temp);
+            });
+
+            async.series(funcAry, function (err, result) {
+                if (err) {
+                    connection.rollback(function (err) {
+                        console.log("transaction error: " + err);
+                        connection.release();
+                        return callback(err, null);
+                    });
+                } else {
+                    connection.commit(function (err, info) {
+                        if (err) {
+                            console.log("执行事务失败，" + err);
+                            connection.rollback(function (err) {
+                                console.log("transaction error: " + err);
+                                connection.release();
+                                return callback(err, null);
+                            });
+                        } else {
+                            connection.release();
+                            return callback(null, info);
+                        }
+                    })
+                }
+            })
+        });
+    });
 }
 
 function toMenuTree(data) {
@@ -75,4 +147,4 @@ function getClientIP(req) {
     return ip.replace('::ffff:', '');
 };
 
-module.exports = { getClientIP, isNull, toMenuTree, findOptionFormat, orderCode }
+module.exports = { getClientIP, isNull, toMenuTree, findOptionFormat, orderCode, execTrans, _getNewSqlParamEntity }

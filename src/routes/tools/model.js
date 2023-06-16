@@ -50,6 +50,6 @@ const menu = `Select menuId,menuName,menuType,parentId,menuCode,rightCode,menuSo
 	order by menuSort`
 
 // 查询角色列表
-const role = `select roleId,roleCode,roleName,createTime,creator,updateTime,updator from ts_system_role  where 1=1  `
+const role = `select roleId,roleCode,roleName,createTime,creator,updateTime,updator from tb_system_role  where 1=1  `
 
 module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, role, menu };
