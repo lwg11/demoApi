@@ -41,6 +41,11 @@ const role = () => {
     return sqlPromise(model.role)
 };
 
-module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, menu, role }
+//分页列表
+const findPageList = (params, findOptions, limit, order) => {
+    return Promise.all([sqlPromise(model.recordCount(findOptions), params), sqlPromise(model.findPageList(findOptions, limit, order), [...params, limit])])
+};
+
+module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, menu, role, findPageList }
 
 

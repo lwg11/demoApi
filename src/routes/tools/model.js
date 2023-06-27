@@ -1,3 +1,5 @@
+const { findOptionFormat } = require("../../utils/utils");
+
 /**
  * 查询用户信息
  * @userNo 用户账号
@@ -52,4 +54,17 @@ const menu = `Select menuId,menuName,menuType,parentId,menuCode,rightCode,menuSo
 // 查询角色列表
 const role = `select roleId,roleCode,roleName,createTime,creator,updateTime,updator from tb_system_role  where 1=1  `
 
-module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, role, menu };
+const recordCount = (findOptions) => `
+SELECT count(1) total
+FROM tf_o_tea_land b
+left join ts_o_system_user u on u.userNo = b.contact
+left join tf_o_field fi on fi.refId =b.fieldId
+left join tf_o_farms f on f.refId = fi.farmsCode
+left join tf_o_customer c on c.customerId = f.orgCode
+left join tf_o_collect_type t on b.cropId = t.refId
+left join tf_o_nurture_criterion_type nct on t.currentCriterionType = nct.refId
+WHERE  1=1  
+AND b.delFlag=0
+` + findOptionFormat(findOptions);
+
+module.exports = { userList, userByPhone, registerOne, logAddOne, logs, roleMenuList, role, menu, recordCount };

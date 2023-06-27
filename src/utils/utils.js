@@ -21,7 +21,6 @@ const findOptionFormat = (findOptions) => {
             return `${o.key} ${isNull(o.type) ? '= ? ' : o.type === 'original' ? '' : `${o.type} ? `}  `
         }).join(' AND ')
     }
-
 }
 
 function _getNewSqlParamEntity(sql, params, callback) {
