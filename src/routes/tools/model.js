@@ -38,7 +38,8 @@ const registerOne = `insert into  tb_system_user set ?  `
 /**
  * 新增日志信息 登录日志
  */
-const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator,phone) values (?,?,sysdate(),?,?)`;
+// const logAddOne = `insert into tb_system_logs (ip,remark,createTime,creator,phone) values (?,?,sysdate(),?,?)`;
+const logAddOne = `insert into tb_system_logs (ip,remark,creator,phone,createTime) values (?,?,?,?,?)`;
 
 // 查询日志
 const logs = `select refID,ip,remark,createTime,creator 

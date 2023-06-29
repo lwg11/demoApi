@@ -7,9 +7,10 @@ const Exception = require('../../exception');
 const { isNull } = require('../../utils/utils');
 const { v4: uuidv4 } = require('uuid');
 const sqlError = require('../../utils/sqlError');
+const roleService = require('./roleService');
 
 /**
- * @api {get} /system/role 2.1.角色列表
+ * @api {get} /system/role/list 2.1.角色列表
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -25,10 +26,10 @@ const sqlError = require('../../utils/sqlError');
  *    "resultInfo": "SUCCESS",
  *    "data": ""
  * }
- * @apiSampleRequest /system/role
+ * @apiSampleRequest /system/role/list
  * @apiVersion 1.0.0
  */
-router.get('/', jwtMiddleWare, (req, res) => {
+router.get('/list', jwtMiddleWare, (req, res) => {
 	let { roleName } = req.query
 	let sqlStr = `select roleId,roleCode,roleName,description,isActive,createTime,creator,updateTime,updator from tb_system_role  where 1=1  `
 	let params = []
@@ -37,7 +38,6 @@ router.get('/', jwtMiddleWare, (req, res) => {
 		sqlStr += ` and roleName like ? `
 	}
 	sqlStr += ` order by createTime desc`;
-
 	sql.query(sqlStr, params, (err, results) => {
 		if (err) {
 			console.error("==>出错了:", err);
@@ -47,8 +47,100 @@ router.get('/', jwtMiddleWare, (req, res) => {
 	})
 });
 
+
 /**
- * @api {get} /system/role/active 2.2.已激活角色列表
+ * @api {get} /system/role 2.2.角色分页列表
+ * @apiHeader {string} [Authorization] 登录成功后返回token
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "Authorization": ""
+ *     } 
+ * @apiDescription  角色分页列表
+ * @apiName role
+ * @apiGroup System
+ * @apiParam {Int} [pageNum] 当前页
+ * @apiParam {Int} [pageSize] 记录数
+ * @apiParam {roleCode} [roleCode] 角色编号
+ * @apiParam {String} [keyword] 关键字
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ * {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
+ * }
+ * @apiSampleRequest /system/role
+ * @apiVersion 1.0.0
+ */
+
+router.get('/', jwtMiddleWare, (req, res) => {
+	let { roleCode, keyword,  } = req.query
+	let params = []
+	let findOptions = []
+	if (!isNull(roleCode)) {
+		params.push(roleCode)
+		findOptions.push({
+			key: 'roleCode'
+		})
+	}
+	if (!isNull(keyword)) {
+		params.push(`%${keyword}%`)
+		findOptions.push({
+			key: '(roleName like ? )',
+			type: 'original'
+		})
+	}
+
+	let limit = null
+	if (!isNull(req.query.pageNum) && !isNull(req.query.pageSize)) {
+		let pageNum = req.query.pageNum;
+		let pageSize = req.query.pageSize;
+		limit = [(parseInt(pageNum) - 1) * parseInt(pageSize), parseInt(pageSize)];
+	}
+	let order = null
+	roleService.findPageList(params, findOptions, limit, order).then(results => {
+		let countResult = results[0]
+		let dataResult = results[1]
+		if (countResult.error) {
+			console.log("countResult.error:", countResult.error);
+			throw new Exception(-1, sqlError[countResult.error.errno])
+		}
+		if (dataResult.error) {
+			console.log("dataResult.error:", dataResult.error);
+			throw new Exception(-1, sqlError[dataResult.error.errno])
+		}
+		let total = 0
+		if (countResult.result && countResult.result.length > 0) {
+			total = countResult.result[0].total
+			res.json({
+				resultCode: 0, resultInfo: 'SUCCESS', data: {
+					total,
+					results: dataResult.result
+				}
+			})
+		} else {
+			res.json({
+				resultCode: 0, resultInfo: 'SUCCESS', data: {
+					total,
+					results: []
+				}
+			})
+
+		}
+	}).catch(e => {
+		res.json({ resultCode: -1, resultInfo: e.message || e })
+	});
+})
+
+
+
+
+
+
+
+
+/**
+ * @api {get} /system/role/active 2.3.已激活角色列表
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -78,7 +170,7 @@ router.get('/active', jwtMiddleWare, (req, res) => {
 });
 
 /**
- * @api {get} /system/role/fuzzy 2.3.已冻结角色列表
+ * @api {get} /system/role/fuzzy 2.4.已冻结角色列表
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -115,7 +207,7 @@ router.get('/fuzzy', jwtMiddleWare, function (req, res) {
 
 /**
  * @apiIgnore
- * @api {post} /system/role/active 2.4.激活角色 
+ * @api {post} /system/role/active 2.5.激活角色 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -153,7 +245,7 @@ router.post('/active', jwtMiddleWare, (req, res) => {
 });
 
 /**
- * @api {post} /system/role/delete 2.5.删除角色 
+ * @api {post} /system/role/delete 2.6.删除角色 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -198,7 +290,7 @@ router.post('/delete', jwtMiddleWare, (req, res) => {
 });
 
 /**
- * @api {post} /system/role 2.6.新增角色 
+ * @api {post} /system/role 2.7.新增角色 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -255,7 +347,7 @@ router.post('/', jwtMiddleWare, (req, res) => {
 });
 
 /**
- * @api {post} /system/role/name 2.7.编辑角色 
+ * @api {post} /system/role/name 2.8.编辑角色 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -301,7 +393,7 @@ router.post('/name', jwtMiddleWare, (req, res) => {
 });
 
 /**
- * @api {post} /system/role/isActive 2.7.激活角色 
+ * @api {post} /system/role/isActive 2.9.激活角色 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {

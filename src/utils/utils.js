@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const _ = require('lodash')
 const async = require("async");
+const moment = require('moment');
 
 function orderCode() {
     var orderCode = '';
@@ -146,4 +147,33 @@ function getClientIP(req) {
     return ip.replace('::ffff:', '');
 };
 
-module.exports = { getClientIP, isNull, toMenuTree, findOptionFormat, orderCode, execTrans, _getNewSqlParamEntity }
+
+function formatDateFields(req, res, next) {
+    res.formatDateField = function (fieldName) {
+        if (res.locals.data && res.locals.data[fieldName]) {
+            res.locals.data[fieldName] = moment(res.locals.data[fieldName]).format('YYYY-MM-DD HH:mm:ss');
+        }
+    };
+    next();
+}
+
+// 添加日期格式化函数
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function formatMoment(time) {
+    return moment(time).format('YYYY-MM-DD HH:mm:ss');
+}
+
+module.exports = {
+    getClientIP, isNull, toMenuTree, findOptionFormat, orderCode, execTrans, _getNewSqlParamEntity, formatDateFields
+    , formatDate, formatMoment
+}

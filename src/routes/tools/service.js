@@ -1,5 +1,6 @@
 const model = require('./model');
 const { sqlPromise } = require('../../utils/sqlPromise');
+const sd = require('silly-datetime');
 
 //根据用户名称查询
 const userList = (params) => {
@@ -23,7 +24,12 @@ const registerOne = (params) => {
 
 //新增登录日志
 const logAddOne = (params) => {
-    return sqlPromise(model.logAddOne, params)
+    console.log('params--->',params);
+    let currentTime=sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+    const MergeTime = [...params,...[currentTime]]
+    console.log('MergeTime--->',MergeTime);
+
+    return sqlPromise(model.logAddOne, MergeTime)
 };
 
 //查询日志
