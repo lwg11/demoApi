@@ -23,7 +23,7 @@ const sql = require('../../config/db');
  * @apiParam {Int} [pageNum] 当前页
  * @apiParam {Int} [pageSize] 记录数
  * @apiParam {String} [phone] 手机号码
- * @apiParam {String} [name] 姓名
+ * @apiParam {String} [userName] 姓名
  * @apiParam {String} [keyword] 关键字  姓名|手机号
  * @apiName getusers
  * @apiGroup System
@@ -37,36 +37,61 @@ const sql = require('../../config/db');
  * @apiVersion 1.0.0
  */
 router.get('/', jwtMiddleWare, function (req, res) {
-    let { phone, name, keyword } = req.query;
+    let { phone, userName, keyword } = req.query;
     let sqlStr1 = `select count(1) total 
         from tb_system_user`; // SQL查询语句，用于获取总记录数
-    let sqlstr = `select 
-    userId,
-    userNo,
-    name,
-    phone,
-    email,
-    headImage,
-    createTime,
-    creator,
-    updateTime,
-    updator,
-    isActive,
-    organizationId,
-    roleId 
-	from tb_system_user a
-	where 1=1 and a.delFlag= 0`;
+    // let sqlstr = `select 
+    // userId,
+    // userNo,
+    // userName,
+    // phone,
+    // email,
+    // headImage,
+    // createTime,
+    // creator,
+    // updateTime,
+    // updator,
+    // isActive,
+    // organizationId,
+    // roleId 
+	// from tb_system_user a
+	// where 1=1 and a.delFlag= 0`;
+
+    let sqlstr = `SELECT
+	a.userId,
+	a.userNo,
+	a.userName,
+	a.phone,
+	a.email,
+	a.headImage,
+	a.createTime,
+	a.creator,
+	a.updateTime,
+	a.updator,
+	a.isActive,
+	a.organizationId,
+	a.roleId,
+	b.roleCode,
+	b.roleName,
+	b.description,
+	b.roleCode 
+FROM
+	tb_system_user a
+	LEFT JOIN tb_system_role b ON a.roleId = b.roleId 
+WHERE
+	1 = 1 
+	AND a.delFlag = 0`;
     let params = [];
     if (!isNull(phone)) {
         sqlstr = sqlstr + ` and a.phone=? `;
         params.push(phone);
     }
-    if (!isNull(name)) {
-        sqlstr = sqlstr + ` and a.name=? `;
-        params.push(name);
+    if (!isNull(userName)) {
+        sqlstr = sqlstr + ` and a.userName=? `;
+        params.push(userName);
     }
     if (!isNull(keyword)) {
-        sqlstr = sqlstr + ` and ( a.name like ? or a.phone like ? ) `;
+        sqlstr = sqlstr + ` and ( a.userName like ? or a.phone like ? ) `;
         params.push(`%${keyword}%`, `%${keyword}%`);
     }
     sqlstr = sqlstr + ` order by a.createTime desc limit ? `;
@@ -104,7 +129,7 @@ router.get('/', jwtMiddleWare, function (req, res) {
  * @apiDescription 新增用户
  * @apiName createuser
  * @apiGroup System
- * @apiParam {string} name 姓名
+ * @apiParam {string} userName 姓名
  * @apiParam {string} phone 手机号
  * @apiParam {string} email 邮箱
  * @apiParam {Int} organizationId 部门ID
@@ -113,7 +138,7 @@ router.get('/', jwtMiddleWare, function (req, res) {
  * @apiParam {string} remark 备注
  * @apiParamExample {json} Request-Example:
  *    {
- * 		"name":"",
+ * 		"userName":"",
  * 		"phone":"",	
  * 		"email":"",
  *      "organizationId":"",
@@ -135,14 +160,14 @@ router.post('/', jwtMiddleWare, (req, res) => {
     let crypto = require('crypto');
     let md5 = crypto.createHash('md5');
     let userId = uuidv4();
-    let { name, phone, email, organizationId, roleId, isActive, remark } = req.body;
+    let { userName, phone, email, organizationId, roleId, isActive, remark } = req.body;
     let userNo = orderCode("S");
     let passWord = md5.update("123456");
     let delFlag = 0; //0 未删除
     passWord = md5.digest('hex').toUpperCase();
     isActive = isActive ?? 0;
     //todo 校验字段合法性
-    sql.query(`select 1 from tb_system_user where (name= ? or phone= ?) and delFlag= 0 `, [name, phone], (err, result) => {
+    sql.query(`select 1 from tb_system_user where (userName= ? or phone= ?) and delFlag= 0 `, [userName, phone], (err, result) => {
         if (err) {
             console.error("==>出错了:", err);
             res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
@@ -150,15 +175,15 @@ router.post('/', jwtMiddleWare, (req, res) => {
             if (result && result.length > 0) {
                 res.json({ resultCode: -1, resultInfo: "用户已存在" });
             } else {
-                let sqlstr = `insert into tb_system_user (userId, userNo, name, passWord, phone, 
+                let sqlstr = `insert into tb_system_user (userId, userNo, userName, passWord, phone, 
 					email, organizationId, roleId, isActive,delFlag,
 					remark, createTime,creator,updateTime,updator) 
 				values (?, ?, ?, ?, ?, 
 					 ?, ?, ?, ?, ?,
 					 ?, sysdate(),?,sysdate(),?)`;
-                let params = [userId, userNo, name, passWord, phone,
+                let params = [userId, userNo, userName, passWord, phone,
                     email, organizationId, roleId, isActive, delFlag,
-                    remark, req.user.name, req.user.name];
+                    remark, req.user.userName, req.user.userName];
                 sql.query(sqlstr, params, (err) => {
                     if (err) {
                         console.error("==>出错了:", err);
@@ -221,7 +246,7 @@ router.post('/delete', jwtMiddleWare, (req, res) => {
  * @apiName updateuser
  * @apiGroup System
  * @apiParam {String} userId 用户编号
- * @apiParam {String} name 姓名
+ * @apiParam {String} userName 姓名
  * @apiParam {String} email 邮箱
  * @apiParam {Int} organizationId 部门Id
  * @apiParam {Int} roleId 角色Id
@@ -230,7 +255,7 @@ router.post('/delete', jwtMiddleWare, (req, res) => {
  * @apiParamExample {json} Request-Example:
  *     {
  *       "userId":"",
- *       "name":"",
+ *       "userName":"",
  *       "email":"",
  *       "organizationId":"",
  *       "remark":"",
@@ -248,9 +273,9 @@ router.post('/delete', jwtMiddleWare, (req, res) => {
  * @apiVersion 1.0.0
  */
 router.post('/update', jwtMiddleWare, (req, res) => {
-    const { userId, name, email, organizationId, roleId, remark, isActive } = req.body;
-    let sqlStr = `update tb_system_user set  name=?, email=?, organizationId=?, roleId=?,isActive=?,remark=?, updateTime=sysdate() where userId=?`;
-    let params = [name, email, organizationId, roleId, isActive, remark, userId];
+    const { userId, userName, email, organizationId, roleId, remark, isActive } = req.body;
+    let sqlStr = `update tb_system_user set  userName=?, email=?, organizationId=?, roleId=?,isActive=?,remark=?, updateTime=sysdate() where userId=?`;
+    let params = [userName, email, organizationId, roleId, isActive, remark, userId];
     sql.query(sqlStr, params, (err) => {
         if (err) {
             console.error("==>出错了:", err);
@@ -349,13 +374,13 @@ router.post('/headImage', jwtMiddleWare, (req, res) => {
  * @apiDescription 修改个人信息
  * @apiName userProfile
  * @apiGroup System
- * @apiParam {string} [name] 真实姓名
+ * @apiParam {string} [userName] 真实姓名
  * @apiParam {string} [email] 邮箱
  * @apiParam {string} [headImage] 头像
  * @apiSuccess {json} resp_result
  * @apiParamExample {json} Request-Example:
  *    {
- * 		"name":"",
+ * 		"userName":"",
  * 		"email":"",
  * 		"headImage":""
  *    }
@@ -369,12 +394,12 @@ router.post('/headImage', jwtMiddleWare, (req, res) => {
  * @apiVersion 1.0.0
  */
 router.post('/profile', jwtMiddleWare, function (req, res) {
-	const { name, email, headImage } = req.body;
+	const { userName, email, headImage } = req.body;
 	let params = [];
 	let sqlStr = `update tb_system_user set updateTime=sysdate()`;
-	if (name != null || name != "") {
-		params.push(name);
-		sqlStr = sqlStr + `, name=? `;
+	if (userName != null || userName != "") {
+		params.push(userName);
+		sqlStr = sqlStr + `, userName=? `;
 	}
 	if (email != null || email != "") {
 		params.push(email);

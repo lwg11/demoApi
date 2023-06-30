@@ -5,9 +5,9 @@ const { findOptionFormat } = require("../../utils/utils");
  * @userNo 用户账号
  * @passWord 用户密码
  */
-// const userList = `select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
+// const userList = `select userId,userNo,userName,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
 // from tb_system_user where userNo = ? and passWord = ?`
-const userList = `select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
+const userList = `select userId,userNo,userName,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
 from tb_system_user where (userNo = ? or phone = ?) and passWord = ?`
 
 /**
@@ -15,7 +15,7 @@ from tb_system_user where (userNo = ? or phone = ?) and passWord = ?`
  * @phone 用户手机
  * @passWord 用户密码
  */
-const userByPhone = `select userId,userNo,name,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,
+const userByPhone = `select userId,userNo,userName,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,
 isActive,organizationId,roleId
 from tb_system_user where phone = ? and delFlag= 0`
 

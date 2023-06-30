@@ -262,7 +262,7 @@ router.get('/fuzzy', jwtMiddleWare, function (req, res) {
  */
 router.post('/active', jwtMiddleWare, (req, res) => {
 	const { roleId, isActive } = req.body;
-	sql.query(`update tb_system_role set isActive=?, updateTime=sysdate(),updator=? where roleId=?`, [isActive, req.user.name, roleId], (err) => {
+	sql.query(`update tb_system_role set isActive=?, updateTime=sysdate(),updator=? where roleId=?`, [isActive, req.user.userName, roleId], (err) => {
 		if (err) {
 			console.error("==>出错了:", err);
 			res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
@@ -359,7 +359,7 @@ router.post('/', jwtMiddleWare, (req, res) => {
 			let roleCode = uuidv4();
 			let sqlStr = `insert into tb_system_role (roleCode, roleName, description,isActive,createTime, creator,updateTime,updator) 
 			values (?, ?, ?,0,sysdate(), ?, sysdate(), ?)`;
-			let params = [roleCode, roleName, description, req.user.name, req.user.name];
+			let params = [roleCode, roleName, description, req.user.userName, req.user.userName];
 			console.log("sqlStr:", sqlStr);
 			console.log("params:", params);
 			sql.query(sqlStr, params, (err) => {
@@ -411,7 +411,7 @@ router.post('/name', jwtMiddleWare, (req, res) => {
 		}
 		else {
 			sql.query(`update tb_system_role set roleName=?,description=?,updateTime=sysdate(),updator=? where roleId=?`,
-				[roleName, description, req.user.name, roleId], (err) => {
+				[roleName, description, req.user.userName, roleId], (err) => {
 					if (err) res.json({ resultCode: -1, resultInfo: sqlError[err.errno] })
 					res.json({ resultCode: 0, resultInfo: "SUCCESS" })
 				})
@@ -448,7 +448,7 @@ router.post('/name', jwtMiddleWare, (req, res) => {
  */
 router.post('/isActive', jwtMiddleWare, (req, res) => {
 	const { roleId, isActive } = req.body;
-	sql.query(`update tb_system_role set isActive=?,updateTime=sysdate(),updator=? where roleId=?`, [isActive, req.user.name, roleId], (err) => {
+	sql.query(`update tb_system_role set isActive=?,updateTime=sysdate(),updator=? where roleId=?`, [isActive, req.user.userName, roleId], (err) => {
 		if (err) res.json({ resultCode: -1, resultInfo: sqlError[err.errno] })
 		res.json({ resultCode: 0, resultInfo: "SUCCESS" })
 	})

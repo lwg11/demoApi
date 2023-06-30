@@ -68,7 +68,7 @@ router.post('/', (req, res) => {
                 const user = {
                     userId: currentUser.userId,
                     userNo: currentUser.userNo,
-                    name: currentUser.name
+                    userName: currentUser.userName
                 }
                 const token = jwt.sign(user, secretKey, { expiresIn: expiresIn });
 
@@ -109,12 +109,12 @@ router.post('/', (req, res) => {
  * @apiName register
  * @apiGroup System
  * @apiParam {string} phone 手机号码
- * @apiParam {string} name 用户姓名
+ * @apiParam {string} userName 用户姓名
  * @apiParam {string} passWord 密码
  * @apiParamExample {json} Request-Example:
  *    {
  *      "phone": "",
- *      "name": "",
+ *      "userName": "",
  * 		"passWord":""
  *    }
  * @apiSuccess {json} resp_result
@@ -130,19 +130,19 @@ router.post('/', (req, res) => {
 router.post('/register', (req, res) => {
     let createTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
     if (isNull(req.body.phone)) throw new Exception(400, "手机号码为必填参数");
-    if (isNull(req.body.name)) throw new Exception(400, "姓名为必填参数");
+    if (isNull(req.body.userName)) throw new Exception(400, "姓名为必填参数");
     // if (isNull(req.body.passWord)) throw new Exception(400, "密码为必填参数");
     let userId = uuidv4();
     let ip = getClientIP(req);
     let userNo = orderCode("S");
-    let { name, passWord, phone, email, headImage, } = req.body
+    let { userName, passWord, phone, email, headImage, } = req.body
     let params = {
-        userId, userNo, name, phone, email, headImage,
+        userId, userNo, userName, phone, email, headImage,
         passWord: passWord || '123456',
         createTime: createTime,
-        creator: name,
+        creator: userName,
         updateTime: createTime,
-        updator: name,
+        updator: userName,
         delFlag: 0,
         isActive: 1,
         roleId: 2,
