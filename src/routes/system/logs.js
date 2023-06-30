@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const userService = require('../tools/service');
+const userService = require('./userService');
 const jwtMiddleWare = require('../../utils/middleWare');
 const { isNull,formatMoment } = require('../../utils/utils');
 const sql = require('../../config/db');
 
 /**
- * @api {get} http://localhost:9002/api/system/logs 0.1.日志列表
+ * @api {get} http://localhost:9002/api/system/logs 0.1.日志分页列表
  * @apiHeader {string} Authorization
  * @apiParam {String} pageNum 当前页 
  * @apiParam {String} [pageSize] 记录数 
@@ -14,7 +14,7 @@ const sql = require('../../config/db');
  *     {
  *       "Authorization": ""
  *     } 
- * @apiDescription  日志列表
+ * @apiDescription  日志分页列表
  * @apiName getLoginLogs
  * @apiGroup System
  * @apiSuccessExample {json} Success-Response:

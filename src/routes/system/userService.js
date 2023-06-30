@@ -1,4 +1,4 @@
-const model = require('./model');
+const model = require('./userModel');
 const { sqlPromise } = require('../../utils/sqlPromise');
 const sd = require('silly-datetime');
 

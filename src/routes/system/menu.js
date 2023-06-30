@@ -5,7 +5,7 @@ const { getClientIP, isNull, toMenuTree, orderCode } = require('../../utils/util
 const sd = require('silly-datetime');
 const sqlError = require('../../utils/sqlError');
 const Exception = require('../../exception');
-const userService = require('../tools/service');
+const userService = require('./userService');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
