@@ -24,11 +24,8 @@ const registerOne = (params) => {
 
 //新增登录日志
 const logAddOne = (params) => {
-    console.log('params--->',params);
     let currentTime=sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
     const MergeTime = [...params,...[currentTime]]
-    console.log('MergeTime--->',MergeTime);
-
     return sqlPromise(model.logAddOne, MergeTime)
 };
 

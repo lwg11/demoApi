@@ -384,12 +384,12 @@ router.post('/', jwtMiddleWare, (req, res) => {
  * @apiName updateRoleName
  * @apiGroup System
  * @apiParam {string} roleName 名称
- * @apiParam {string} roleID id
+ * @apiParam {string} roleId id
  * @apiParam {string} description 角色描述
  * @apiParamExample {json} Request-Example:
  *    {
  *      "roleName": "",
- *      "roleID": "",
+ *      "roleId": "",
  *      "description": ""
  *    }
  * @apiSuccess {json} resp_result
@@ -427,14 +427,14 @@ router.post('/name', jwtMiddleWare, (req, res) => {
  *       "Authorization": ""
  *     } 
  * @apiDescription 7.激活角色
- * @apiName updateRoleName
+ * @apiName isActiveRole
  * @apiGroup System
- * @apiParam {string} roleName 名称
- * @apiParam {string} roleID id
- * @apiParam {string} description 角色描述
+ * @apiParam {Int} roleId id
+ * @apiParam {string} isActive 是否激活
  * @apiParamExample {json} Request-Example:
  *    {
  *      "roleId": "",
+ *      "isActive": "",
  *    }
  * @apiSuccess {json} resp_result
  * @apiSuccessExample {json} Success-Response:

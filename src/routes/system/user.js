@@ -74,7 +74,8 @@ router.get('/', jwtMiddleWare, function (req, res) {
 	b.roleCode,
 	b.roleName,
 	b.description,
-	b.roleCode 
+	b.roleCode,
+    a.remark
 FROM
 	tb_system_user a
 	LEFT JOIN tb_system_role b ON a.roleId = b.roleId 
@@ -120,7 +121,7 @@ WHERE
 });
 
 /**
- * @api {post} /system/user 1.4.新增用户 
+ * @api {post} /api/system/user 1.4.新增用户 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -153,7 +154,7 @@ WHERE
  *    "resultInfo": "SUCCESS",
  *    "data": ""
  * }
- * @apiSampleRequest /system/user
+ * @apiSampleRequest /api/system/user
  * @apiVersion 1.0.0
  */
 router.post('/', jwtMiddleWare, (req, res) => {
