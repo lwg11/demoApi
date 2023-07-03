@@ -406,15 +406,20 @@ router.post('/name', jwtMiddleWare, (req, res) => {
 	const { roleName, roleId, description } = req.body;
 	sql.query(`select 1 from tb_system_role where roleName=?`, [roleName], (err, results) => {
 		if (err) {
-			console.error("==>出错了:", err);
+			console.error("roleName==>出错了:", err);
 			res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
 		}
 		else {
-			sql.query(`update tb_system_role set roleName=?,description=?,updateTime=sysdate(),updator=? where roleId=?`,
-				[roleName, description, req.user.userName, roleId], (err) => {
-					if (err) res.json({ resultCode: -1, resultInfo: sqlError[err.errno] })
-					res.json({ resultCode: 0, resultInfo: "SUCCESS" })
-				})
+			let sqlStr = `update tb_system_role set roleName=?,description=?,updateTime=sysdate(),updator=? where roleId=?`;
+			let params = [roleName, description, req.user.userName, roleId];
+			console.log('params----->',params);
+			sql.query(sqlStr, params, (err) => {
+				if (err) {
+					console.error("==>出错了------>:", err);
+					res.json({ resultCode: -1, resultInfo: sqlError[err.errno] })
+				}
+				res.json({ resultCode: 0, resultInfo: "SUCCESS" })
+			})
 		}
 	})
 });
