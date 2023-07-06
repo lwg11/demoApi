@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const userService = require('./userService');
 const jwtMiddleWare = require('../../utils/middleWare');
-const { isNull,formatMoment } = require('../../utils/utils');
+const { isNull, formatMoment } = require('../../utils/utils');
 const sql = require('../../config/db');
 
 /**
- * @api {get} http://localhost:9002/api/system/logs 0.1.日志分页列表
+ * @api {get} /system/logs 0.1.日志分页列表
  * @apiHeader {string} Authorization
  * @apiParam {String} pageNum 当前页 
  * @apiParam {String} [pageSize] 记录数 
@@ -23,7 +23,7 @@ const sql = require('../../config/db');
  *    "resultInfo": "SUCCESS",
  *    "data": ""
  * }
- * @apiSampleRequest http://localhost:9002/api/system/logs
+ * @apiSampleRequest /system/logs
  * @apiVersion 1.0.0
  */
 router.get('/', (req, res) => {
@@ -56,7 +56,7 @@ router.get('/', (req, res) => {
             }
             // 对createTime字段进行格式化处理
             // results.forEach(result => {
-			// 	// result.createTime = formatDate(result.createTime);
+            // 	// result.createTime = formatDate(result.createTime);
             //     // result.createTime = moment(result.createTime).format('YYYY-MM-DD HH:mm:ss');
             //     result.createTime = formatMoment(result.createTime);
             // });

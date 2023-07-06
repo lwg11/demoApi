@@ -25,6 +25,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/', usersRoutes);
 
+//服务测试
+//app.get('/test', (req, res) => res.send('Hello World'));
+//开发文档服务
+//TODO 增加环境变量，发布时去除该服务
+// app.use('/api/doc/', express.static('doc'));
+
 /* 全局错误抛出 */
 app.use((error, req, res, next) => {
 	if (error) {

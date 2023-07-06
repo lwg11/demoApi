@@ -1,91 +1,89 @@
 const { findOptionFormat } = require("../../../utils/utils");
 
-const createOne=`INSERT INTO tf_o_consumable_goods SET ? `;
+const createOne = `INSERT INTO tf_consumable_goods_bill SET ? `;
 
-const updateById=`UPDATE tf_o_consumable_goods SET ?  WHERE refId=? `;
+const updateById = `UPDATE tf_consumable_goods_bill SET ?  WHERE refId=? `;
 
-const deleteById=`DELETE FROM tf_o_consumable_goods WHERE refId=? `;
+const deleteById = `DELETE FROM tf_consumable_goods_bill WHERE refId=? `;
 
-const deleteAll=`DELETE FROM tf_o_consumable_goods `;
+const deleteAll = `DELETE FROM tf_consumable_goods_bill `;
 
-const findById=`
+//获取商品详情
+const findById = `
 SELECT 
-g.refId,
-g.goodsType,
-g.name,
-g.unit,
-g.factoryId,
-g.brand,
-g.remark,
-g.createTime,
-g.creator,
-g.updateTime,
-g.updator,
-f.name factoryName,
+b.refId,
+b.goodsName,
+b.goodsPrice,
+b.number,
+b.goodsType,
+b.unit,
+b.createTime,
+b.creator,
+b.updateTime,
+b.updator,
+b.remark,
 t.name goodsTypeName
-FROM tf_o_consumable_goods g
-left join tf_o_consumable_goods_type t  on t.refId = g.goodsType
-left join tf_o_goods_factory f on f.refId = g.factoryId
+FROM tf_consumable_goods_bill b
+left join tf_consumable_goods_type t  on t.refId = b.goodsType
 where 1=1
-and g.delFlag= 0
+and b.delFlag= 0
 
-AND g.refId=? `;
+AND b.refId=? `;
 
-const findAll=(findOptions)=>`
+//查询所有记录，用来防止插入重复数据
+const findAll = (findOptions) => `
 SELECT 
-g.refId,
-g.goodsType,
-g.name,
-g.unit,
-g.factoryId,
-g.brand,
-g.remark,
-g.createTime,
-g.creator,
-g.updateTime,
-g.updator,
-f.name factoryName,
+b.refId,
+b.goodsName,
+b.goodsPrice,
+b.number,
+b.goodsType,
+b.unit,
+b.createTime,
+b.creator,
+b.updateTime,
+b.updator,
+b.remark,
 t.name goodsTypeName
-FROM tf_o_consumable_goods g
-left join tf_o_consumable_goods_type t  on t.refId = g.goodsType
-left join tf_o_goods_factory f on f.refId = g.factoryId
+FROM tf_consumable_goods_bill b
+left join tf_consumable_goods_type t  on t.refId = b.goodsType
 WHERE 1=1
-and g.delFlag= 0
+and b.delFlag= 0
 
 ${findOptionFormat(findOptions)}
-ORDER BY g.createTime desc, g.refId DESC`;
+ORDER BY b.createTime desc, b.refId DESC`;
 
-const recordCount=(findOptions) => `
+// 获取总记录数
+const recordCount = (findOptions) => `
 SELECT count(1) total
-FROM tf_o_consumable_goods g
-left join tf_o_consumable_goods_type t  on t.refId = g.goodsType
-left join tf_o_goods_factory f on f.refId = g.factoryId
-WHERE  1=1  and  g.delFlag= 0 
+FROM tf_consumable_goods_bill b
+left join tf_consumable_goods_type t  on t.refId = b.goodsType
+WHERE  1=1  and  b.delFlag= 0 
  ` + findOptionFormat(findOptions);
 
-const findPageList=(findOptions,limit,order) => `
+
+
+const findPageList = (findOptions, limit, order) => `
 SELECT 
-g.refId,
-g.goodsType,
-g.name,
-g.unit,
-g.factoryId,
-g.brand,
-g.remark,
-g.createTime,
-g.creator,
-g.updateTime,
-g.updator,
-f.name factoryName,
+b.refId,
+b.goodsName,
+b.goodsPrice,
+b.number,
+b.goodsType,
+b.unit,
+b.createTime,
+b.creator,
+b.updateTime,
+b.updator,
+b.remark,
 t.name goodsTypeName
-FROM tf_o_consumable_goods g
-left join tf_o_consumable_goods_type t  on t.refId = g.goodsType
-left join tf_o_goods_factory f on f.refId = g.factoryId
+FROM tf_consumable_goods_bill b
+left join tf_consumable_goods_type t  on t.refId = b.goodsType
 WHERE 1=1 
-and g.delFlag= 0
+and b.delFlag= 0
 `
-+findOptionFormat(findOptions)+
-` ORDER BY ${order ? order : ' g.createTime desc, g.refId DESC' }
+    + findOptionFormat(findOptions) +
+    ` ORDER BY ${order ? order : ' b.createTime desc, b.refId DESC'}
 ${limit ? `LIMIT ?` : ''} `;
 
-module.exports = {createOne,updateById,deleteById,findById,findAll,recordCount,findPageList,deleteAll};
+module.exports = { createOne, updateById, deleteById, findById, findAll, recordCount, findPageList, deleteAll };

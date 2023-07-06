@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "<a href='http://localhost:9001' target='_blank'>接口文档说明：http://localhost:9002</a>",
   "title": "接口文档",
-  "url" : "http://localhost:9002",
+  "url" : "http://localhost:9002/api",
   "sampleUrl" : "http://localhost:9002/api"
 }

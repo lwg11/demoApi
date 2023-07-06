@@ -121,7 +121,7 @@ WHERE
 });
 
 /**
- * @api {post} /api/system/user 1.4.新增用户 
+ * @api {post} /system/user 1.4.新增用户 
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
@@ -154,7 +154,7 @@ WHERE
  *    "resultInfo": "SUCCESS",
  *    "data": ""
  * }
- * @apiSampleRequest /api/system/user
+ * @apiSampleRequest /system/user
  * @apiVersion 1.0.0
  */
 router.post('/', jwtMiddleWare, (req, res) => {

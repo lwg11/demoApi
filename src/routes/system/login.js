@@ -12,8 +12,8 @@ const secretKey = 'dolphin.2020';
 
 
 /**
- * @api {post} http://localhost:9002/api/system/login 1.1.用户名/手机号码登录 
- * @apiSampleRequest http://localhost:9002/api/system/login
+ * @api {post} /system/login 1.1.用户名/手机号码登录 
+ * @apiSampleRequest /system/login
  * @apiDescription 用户名/手机号码登录  
  * @apiName login
  * @apiGroup System
@@ -103,8 +103,8 @@ router.post('/', (req, res) => {
 })
 
 /**
- * @api {post} http://localhost:9002/api/system/login/register 1.2.用户名/手机号码注册
- * @apiSampleRequest http://localhost:9002/api/system/login/register
+ * @api {post} /system/login/register 1.2.用户名/手机号码注册
+ * @apiSampleRequest /system/login/register
  * @apiDescription 用户名/手机号码注册 
  * @apiName register
  * @apiGroup System
