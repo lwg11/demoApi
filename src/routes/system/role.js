@@ -409,6 +409,9 @@ router.post('/name', jwtMiddleWare, (req, res) => {
 			console.error("roleName==>出错了:", err);
 			res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
 		}
+		if (results.length > 0) {
+			res.json({ resultCode: -1, resultInfo: "角色名称重复" })
+		}
 		else {
 			let sqlStr = `update tb_system_role set roleName=?,description=?,updateTime=sysdate(),updator=? where roleId=?`;
 			let params = [roleName, description, req.user.userName, roleId];
