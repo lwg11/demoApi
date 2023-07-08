@@ -22,6 +22,7 @@ const sqlError = require('../../../utils/sqlError');
  * @apiParam {string} goodsPrice 商品单价	
  * @apiParam {string} number 商品数量	
  * @apiParam {string} unit 单位	
+ * @apiParam {string} isIncluded, 是否计入账户	
  * @apiParam {string} remark 备注	
  * @apiParamExample {json} Request-Example:
  *  {
@@ -30,6 +31,7 @@ const sqlError = require('../../../utils/sqlError');
  *    "goodsPrice": "",
  *    "number": "",
  *    "unit": "",
+ *    "isIncluded": "",
  *    "remark": ""
  * }
  * @apiSuccess {json} resp_result
@@ -44,10 +46,11 @@ const sqlError = require('../../../utils/sqlError');
  */
 router.post('/', jwtMiddleWare, (req, res) => {
 	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
-	let { goodsName, goodsType, goodsPrice, number, unit, remark } = req.body
+	let { goodsName, goodsType, goodsPrice, number, unit, isIncluded, remark } = req.body
 	let params =
 	{
 		goodsName, goodsType, unit, goodsPrice, number, remark,
+		isIncluded: isIncluded || 0,
 		createTime: currentTime,
 		creator: req.user.userName,
 		updateTime: currentTime,
@@ -72,17 +75,10 @@ router.post('/', jwtMiddleWare, (req, res) => {
 						res.json({ resultCode: 0, resultInfo: '新增成功' })
 
 					}
-
-
 				})
 			}
-
 		}
-
-
 	})
-
-	//return consumableGoods.createOne(params,req, res);
 });
 
 /**
@@ -101,6 +97,7 @@ router.post('/', jwtMiddleWare, (req, res) => {
  * @apiParam {string} goodsPrice 商品单价	
  * @apiParam {string} number 商品数量	
  * @apiParam {string} unit 单位	
+ * @apiParam {string} isIncluded 是否计入账户	
  * @apiParam {string} remark 备注
 
  * @apiParamExample {json} Request-Example:
@@ -110,6 +107,7 @@ router.post('/', jwtMiddleWare, (req, res) => {
  *    "goodsPrice": "",
  *    "number": "",
  *    "unit": "",
+ *    "isIncluded": "",
  *    "remark": ""
  * }
  * @apiSuccess {json} resp_result
@@ -124,11 +122,11 @@ router.post('/', jwtMiddleWare, (req, res) => {
  */
 router.put('/detail/:refId', jwtMiddleWare, (req, res) => {
 	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
-	let { goodsName, goodsType, unit, goodsPrice, number, remark } = req.body
+	let { goodsName, goodsType, unit, goodsPrice, number,isIncluded, remark } = req.body
 	let { refId } = req.params
 	let params = [
 		{
-			goodsName, goodsType, unit, goodsPrice, number, remark,
+			goodsName, goodsType, unit, goodsPrice, number,isIncluded, remark,
 			updateTime: currentTime,
 			updator: req.user.userName
 		}, refId
