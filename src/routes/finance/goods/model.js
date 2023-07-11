@@ -18,6 +18,8 @@ b.number,
 b.goodsType,
 b.unit,
 b.isIncluded,
+b.totalPrice,
+b.buyDate,
 b.createTime,
 b.creator,
 b.updateTime,
@@ -41,6 +43,8 @@ b.number,
 b.goodsType,
 b.unit,
 b.isIncluded,
+b.totalPrice,
+b.buyDate,
 b.createTime,
 b.creator,
 b.updateTime,
@@ -63,8 +67,6 @@ left join tf_consumable_goods_type t  on t.refId = b.goodsType
 WHERE  1=1  and  b.delFlag= 0 
  ` + findOptionFormat(findOptions);
 
-
-
 const findPageList = (findOptions, limit, order) => `
 SELECT 
 b.refId,
@@ -75,6 +77,7 @@ b.goodsType,
 b.unit,
 b.isIncluded,
 b.totalPrice,
+b.buyDate,
 b.createTime,
 b.creator,
 b.updateTime,

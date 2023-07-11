@@ -23,6 +23,8 @@ const sqlError = require('../../../utils/sqlError');
  * @apiParam {string} number 商品数量	
  * @apiParam {string} unit 单位	
  * @apiParam {string} isIncluded, 是否计入账户	
+ * @apiParam {string} totalPrice, 商品总价	
+ * @apiParam {string} buyDate, 购买时间	
  * @apiParam {string} remark 备注	
  * @apiParamExample {json} Request-Example:
  *  {
@@ -32,6 +34,8 @@ const sqlError = require('../../../utils/sqlError');
  *    "number": "",
  *    "unit": "",
  *    "isIncluded": "",
+ *    "totalPrice": "",
+ *    "buyDate": "",
  *    "remark": ""
  * }
  * @apiSuccess {json} resp_result
@@ -46,10 +50,10 @@ const sqlError = require('../../../utils/sqlError');
  */
 router.post('/', jwtMiddleWare, (req, res) => {
 	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
-	let { goodsName, goodsType, goodsPrice, number, unit, isIncluded, remark } = req.body
+	let { goodsName, goodsType, goodsPrice, number, unit, isIncluded, totalPrice, buyDate, remark } = req.body
 	let params =
 	{
-		goodsName, goodsType, unit, goodsPrice, number, remark,
+		goodsName, goodsType, unit, goodsPrice, number, remark, totalPrice, buyDate,
 		isIncluded: isIncluded || 0,
 		createTime: currentTime,
 		creator: req.user.userName,
@@ -73,7 +77,6 @@ router.post('/', jwtMiddleWare, (req, res) => {
 						res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
 					} else {
 						res.json({ resultCode: 0, resultInfo: '新增成功' })
-
 					}
 				})
 			}
@@ -98,6 +101,8 @@ router.post('/', jwtMiddleWare, (req, res) => {
  * @apiParam {string} number 商品数量	
  * @apiParam {string} unit 单位	
  * @apiParam {string} isIncluded 是否计入账户	
+ * @apiParam {string} totalPrice 商品总价	
+ * @apiParam {string} buyDate 购买时间	
  * @apiParam {string} remark 备注
 
  * @apiParamExample {json} Request-Example:
@@ -108,6 +113,8 @@ router.post('/', jwtMiddleWare, (req, res) => {
  *    "number": "",
  *    "unit": "",
  *    "isIncluded": "",
+ *    "totalPrice": "",
+ *    "buyDate": "",
  *    "remark": ""
  * }
  * @apiSuccess {json} resp_result
@@ -122,11 +129,11 @@ router.post('/', jwtMiddleWare, (req, res) => {
  */
 router.put('/detail/:refId', jwtMiddleWare, (req, res) => {
 	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
-	let { goodsName, goodsType, unit, goodsPrice, number,isIncluded, remark } = req.body
+	let { goodsName, goodsType, unit, goodsPrice, number, isIncluded, totalPrice, buyDate, remark } = req.body
 	let { refId } = req.params
 	let params = [
 		{
-			goodsName, goodsType, unit, goodsPrice, number,isIncluded, remark,
+			goodsName, goodsType, unit, goodsPrice, number, isIncluded, totalPrice, buyDate, remark,
 			updateTime: currentTime,
 			updator: req.user.userName
 		}, refId
@@ -236,7 +243,10 @@ router.get('/detail/:refId', jwtMiddleWare, (req, res) => {
  * @apiParam {Int} [pageNum] 当前页
  * @apiParam {Int} [pageSize] 记录数
  * @apiParam {Int} [goodsType] 商品类型
- * @apiParam {String} [name] 商品名称
+ * @apiParam {String} [goodsName] 商品名称
+ * @apiParam {date} [buyDate] 购买时间
+ * @apiParam {date} [startTime] 开始时间
+ * @apiParam {date} [endTime] 结束时间
  * 
  * @apiSuccessExample {json} Success-Response:
  * {
@@ -248,7 +258,7 @@ router.get('/detail/:refId', jwtMiddleWare, (req, res) => {
  * @apiVersion 1.0.0
  */
 router.get('/', jwtMiddleWare, (req, res) => {
-	let { goodsType, goodsName } = req.query
+	let { goodsName, goodsType, buyDate, startTime, endTime } = req.query
 	let params = []
 	let findOptions = []
 	if (!isNull(goodsName)) {
@@ -264,13 +274,25 @@ router.get('/', jwtMiddleWare, (req, res) => {
 			key: 'b.goodsType'
 		})
 	}
+	if (!isNull(buyDate)) {
+		params.push(buyDate)
+		findOptions.push({
+			key: 'b.buyDate'
+		})
+	}
+	if (!isNull(startTime) && !isNull(endTime)) {
+		params.push(startTime, endTime)
+		findOptions.push({
+			key: 'date(b.buyDate) between ? and ? ',
+			type: 'original'
+		})
+	}
 
 	let limit = null
 	if (!isNull(req.query.pageNum) && !isNull(req.query.pageSize)) {
 		let pageNum = req.query.pageNum;
 		let pageSize = req.query.pageSize;
 		limit = [(parseInt(pageNum) - 1) * parseInt(pageSize), parseInt(pageSize)];
-
 	}
 	let order = null
 	service.findPageList(params, findOptions, limit, order).then(results => {
