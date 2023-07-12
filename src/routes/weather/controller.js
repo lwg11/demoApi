@@ -8,39 +8,46 @@ const service = require('./service');
 const sqlError = require('../../utils/sqlError');
 const sql = require('../../config/db');
 
-
 /**
- * @api {put} /finance/goodsBill/detail/:Location_ID 1.2.修改商品
+ * @api {post} /weather/city 1.1.新增城市
  * @apiHeader {string} [Authorization] 登录成功后返回token
  * @apiHeaderExample {json} Header-Example:
  *     {
  *       "Authorization": ""
  *     } 
- * @apiDescription 修改商品
- * @apiName consumableGoods-updateById
- * @apiGroup consumableGoods
- * @apiParam {string} Location_ID 城市id	
- * @apiParam {string} goodsName 商品名称	
- * @apiParam {string} goodsType 商品类型	
- * @apiParam {string} goodsPrice 商品单价	
- * @apiParam {string} number 商品数量	
- * @apiParam {string} unit 单位	
- * @apiParam {string} isIncluded 是否计入账户	
- * @apiParam {string} totalPrice 商品总价	
- * @apiParam {string} buyDate 购买时间	
- * @apiParam {string} remark 备注
-
+ * @apiDescription  新增城市
+ * @apiName weather-createOne
+ * @apiGroup weather
+ * @apiParam {int} Location_ID 城市id	
+ * @apiParam {string} Location_Name_EN 地点_名称_EN	
+ * @apiParam {string} Location_Name_ZH 地点_名称_ZH	
+ * @apiParam {string} ISO_3166_1 国际标准化组织	
+ * @apiParam {string} Country_Region_EN 国家/地区_EN	
+ * @apiParam {string} Country_Region_ZH 国家/地区_ZH	
+ * @apiParam {string} Adm1_Name_EN 省级名称_EN	
+ * @apiParam {string} Adm1_Name_ZH 省级名称_ZH	
+ * @apiParam {string} Adm2_Name_EN 市级名称_EN	
+ * @apiParam {string} Adm2_Name_ZH 市级名称_ZH
+ * @apiParam {string} Timezone 时区
+ * @apiParam {float} Latitude 纬度
+ * @apiParam {float} Longitude 经度
+ * @apiParam {string} Adcode 广告代码
  * @apiParamExample {json} Request-Example:
  *  {
- *    "goodsName": "",
- *    "goodsType": "",
- *    "goodsPrice": "",
- *    "number": "",
- *    "unit": "",
- *    "isIncluded": "",
- *    "totalPrice": "",
- *    "buyDate": "",
- *    "remark": ""
+ *    "Location_ID": "",
+ *    "Location_Name_EN": "",
+ *    "Location_Name_ZH": "",
+ *    "ISO_3166_1": "",
+ *    "Country_Region_EN": "",
+ *    "Country_Region_ZH": "",
+ *    "Adm1_Name_EN": "",
+ *    "Adm1_Name_ZH": "",
+ *    "Adm2_Name_EN": "",
+ *    "Adm2_Name_ZH": "",
+ *    "Timezone": "",
+ *    "Latitude": "",
+ *    "Longitude": "",
+ *    "Adcode": ""
  * }
  * @apiSuccess {json} resp_result
  * @apiSuccessExample {json} Success-Response:
@@ -49,41 +56,108 @@ const sql = require('../../config/db');
  *    "resultInfo": "SUCCESS",
  *    "data": ""
  * }
- * @apiSampleRequest /finance/goodsBill/detail/:Location_ID
+ * @apiSampleRequest /weather/city
+ * @apiVersion 1.0.0
+ */
+router.post('/city', jwtMiddleWare, (req, res) => {
+	let { Location_ID, Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
+		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
+	} = req.body
+
+	let params =
+	{
+		Location_ID, Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
+		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
+	}
+	service.findAll([Location_Name_ZH], [{
+		key: 'w.Location_Name_ZH'
+	}]).then(result => {
+		if (result.error) {
+			console.log("出错了===>", result.error);
+			res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
+		} else {
+			if (result.result && result.result.length > 0) {
+				res.json({ resultCode: -1, resultInfo: '城市已存在' })
+			} else {
+				service.createOne(params).then(result => {
+					if (result.error) {
+						console.log("出错了===>", result.error);
+						res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
+					} else {
+						res.json({ resultCode: 0, resultInfo: '新增成功' })
+					}
+				})
+			}
+		}
+	})
+});
+
+/**
+ * @api {put} /weather/city/detail/:Location_ID 1.2.修改地区
+ * @apiHeader {string} [Authorization] 登录成功后返回token
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "Authorization": ""
+ *     } 
+ * @apiDescription 修改商品
+ * @apiName weather-updateById
+ * @apiGroup weather
+ * @apiParam {int} Location_ID 城市id	
+ * @apiParam {string} Location_Name_EN 地点_名称_EN	
+ * @apiParam {string} Location_Name_ZH 地点_名称_ZH	
+ * @apiParam {string} ISO_3166_1 国际标准化组织	
+ * @apiParam {string} Country_Region_EN 国家/地区_EN	
+ * @apiParam {string} Country_Region_ZH 国家/地区_ZH	
+ * @apiParam {string} Adm1_Name_EN 省级名称_EN	
+ * @apiParam {string} Adm1_Name_ZH 省级名称_ZH	
+ * @apiParam {string} Adm2_Name_EN 市级名称_EN	
+ * @apiParam {string} Adm2_Name_ZH 市级名称_ZH
+ * @apiParam {string} Timezone 时区
+ * @apiParam {float} Latitude 纬度
+ * @apiParam {float} Longitude 经度
+ * @apiParam {string} Adcode 广告代码
+
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *    "Location_Name_EN": "",
+ *    "Location_Name_ZH": "",
+ *    "ISO_3166_1": "",
+ *    "Country_Region_EN": "",
+ *    "Country_Region_ZH": "",
+ *    "Adm1_Name_EN": "",
+ *    "Adm1_Name_ZH": "",
+ *    "Adm2_Name_EN": "",
+ *    "Adm2_Name_ZH": "",
+ *    "Timezone": "",
+ *    "Latitude": "",
+ *    "Longitude": "",
+ *    "Adcode": ""
+ * }
+ * @apiSuccess {json} resp_result
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
+ * }
+ * @apiSampleRequest /weather/city/detail/:Location_ID
  * @apiVersion 1.0.0
  */
 
-// Location_ID
-// Location_Name_EN
-// Location_Name_ZH
-// ISO_3166_1
-// Country_Region_EN
-// Country_Region_ZH
-// Adm1_Name_EN
-// Adm1_Name_ZH
-// Adm2_Name_EN
-// Adm2_Name_ZH
-// Timezone
-// Latitude
-// Longitude
-// Adcode
-
-
-
-router.put('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
-	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
-	let { goodsName, goodsType, unit, goodsPrice, number, isIncluded, totalPrice, buyDate, remark } = req.body
+router.put('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
+	let { Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
+		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
+	} = req.body
 	let { Location_ID } = req.params
 	let params = [
 		{
-			goodsName, goodsType, unit, goodsPrice, number, isIncluded, totalPrice, buyDate, remark,
-			updateTime: currentTime,
-			updator: req.user.userName
+			Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
+			Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
 		}, Location_ID
 	]
 
-	service.findAll([goodsName], [{
-		key: 'b.goodsName'
+	service.findAll([Location_Name_ZH], [{
+		key: 'w.Location_Name_ZH'
 	}]).then(result => {
 		if (result.error) {
 			res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
@@ -111,7 +185,7 @@ router.put('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
  *       "Authorization": ""
  *     } 
  * @apiDescription  删除城市
- * @apiName weather-list
+ * @apiName weather-deleteById
  * @apiGroup weather
  * @apiParam {int} Location_ID 城市id
  * @apiSuccessExample {json} Success-Response:
@@ -123,7 +197,7 @@ router.put('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
  * @apiSampleRequest /weather/city/detail/:Location_ID
  * @apiVersion 1.0.0
  */
-router.delete('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
+router.delete('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
 	let { Location_ID } = req.params;
 	service.deleteById(Location_ID).then(result => {
 		if (result.error) {
@@ -142,7 +216,7 @@ router.delete('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
  *       "Authorization": ""
  *     } 
  * @apiDescription  获取城市
- * @apiName weather-list
+ * @apiName weather-findById
  * @apiGroup weather
  * @apiParam {int} Location_ID 城市id
  * @apiSuccessExample {json} Success-Response:
@@ -154,7 +228,7 @@ router.delete('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
  * @apiSampleRequest /weather/city/detail/:Location_ID
  * @apiVersion 1.0.0
  */
-router.get('/detail/:Location_ID', jwtMiddleWare, (req, res) => {
+router.get('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
 	let { Location_ID } = req.params;
 	let params = [Location_ID];
 	service.findById(params).then(result => {
