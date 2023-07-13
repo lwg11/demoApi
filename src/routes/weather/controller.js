@@ -8,6 +8,8 @@ const service = require('./service');
 const sqlError = require('../../utils/sqlError');
 const sql = require('../../config/db');
 
+const axios = require('axios');
+
 /**
  * @api {post} /weather/city 1.1.新增城市
  * @apiHeader {string} [Authorization] 登录成功后返回token
@@ -60,6 +62,7 @@ const sql = require('../../config/db');
  * @apiVersion 1.0.0
  */
 router.post('/city', jwtMiddleWare, (req, res) => {
+	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
 	let { Location_ID, Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
 		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
 	} = req.body
@@ -67,7 +70,11 @@ router.post('/city', jwtMiddleWare, (req, res) => {
 	let params =
 	{
 		Location_ID, Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
-		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
+		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode,
+		createTime: currentTime,
+		creator: req.user.userName,
+		updateTime: currentTime,
+		updator: req.user.userName
 	}
 	service.findAll([Location_Name_ZH], [{
 		key: 'w.Location_Name_ZH'
@@ -145,6 +152,7 @@ router.post('/city', jwtMiddleWare, (req, res) => {
  */
 
 router.put('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
+	let currentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
 	let { Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
 		Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
 	} = req.body
@@ -152,7 +160,9 @@ router.put('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
 	let params = [
 		{
 			Location_Name_ZH, Location_Name_EN, ISO_3166_1, Country_Region_EN, Country_Region_ZH, Adm1_Name_EN, Adm1_Name_ZH,
-			Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode
+			Adm2_Name_EN, Adm2_Name_ZH, Timezone, Latitude, Longitude, Adcode,
+			updateTime: currentTime,
+			updator: req.user.userName
 		}, Location_ID
 	]
 
@@ -238,7 +248,7 @@ router.get('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
 			if (result.result && result.result.length > 0) {
 				res.json({ resultCode: 0, resultInfo: "SUCCESS", data: result.result[0] })
 			} else {
-				res.json({ resultCode: -1, resultInfo: "未查询到该商品" })
+				res.json({ resultCode: -1, resultInfo: "未查询到该城市" })
 			}
 		}
 	})
@@ -258,7 +268,7 @@ router.get('/city/detail/:Location_ID', jwtMiddleWare, (req, res) => {
  * @apiParam {Int} [pageSize] 记录数
  * @apiParam {Int} [Location_ID] 城市id
  * @apiParam {String} [Location_Name_ZH] 城市名称
- * @apiParam {String} [Adm1_Name_ZH] 省名称
+ * @apiParam {String} [Adm1_Name_ZH] 省级名称
  * @apiParam {String} [Country_Region_ZH] 国家名称
  * 
  * @apiSuccessExample {json} Success-Response:
@@ -278,16 +288,16 @@ router.get('/city', jwtMiddleWare, (req, res) => {
 	let params = []
 	let findOptions = []
 	if (!isNull(Location_ID)) {
-		params.push(`%${Location_ID}%`)
+		params.push(Location_ID)
 		findOptions.push({
-			key: 'w.Location_ID',
-			type: 'like'
+			key: 'w.Location_ID'
 		})
 	}
 	if (!isNull(Location_Name_ZH)) {
-		params.push(Location_Name_ZH)
+		params.push(`%${Location_Name_ZH}%`)
 		findOptions.push({
-			key: 'w.Location_Name_ZH'
+			key: 'w.Location_Name_ZH',
+			type: 'like'
 		})
 	}
 	if (!isNull(Country_Region_ZH)) {
@@ -297,9 +307,10 @@ router.get('/city', jwtMiddleWare, (req, res) => {
 		})
 	}
 	if (!isNull(Adm1_Name_ZH)) {
-		params.push(Adm1_Name_ZH)
+		params.push(`%${Adm1_Name_ZH}%`)
 		findOptions.push({
-			key: 'w.Adm1_Name_ZH'
+			key: 'w.Adm1_Name_ZH',
+			type: 'like'
 		})
 	}
 
@@ -341,5 +352,65 @@ router.get('/city', jwtMiddleWare, (req, res) => {
 	});
 })
 
+
+
+/**
+ * @api {get} /weather/weatherWarning 1.7.天气列表
+ * @apiHeader {string} [Authorization] 登录成功后返回token
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "Authorization": ""
+ *     } 
+ * @apiDescription  天气列表
+ * @apiName weatherWarning-list
+ * @apiGroup weatherWarning
+ * @apiParam {Int} [Location_ID] 城市id
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ * {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
+ * }
+ * @apiSampleRequest /weather/weatherWarning
+ * @apiVersion 1.0.0
+ */
+router.get('/weatherWarning', jwtMiddleWare, (req, res) => {
+	let { Location_ID } = req.query;
+	const Key = 'f07ff4636ce24ae3be53f0c89ac3a3a6';
+  
+	const fetchWeather = (id) => {
+	  axios.get(`https://devapi.qweather.com/v7/weather/now`, {
+		params: {
+		  location: id,
+		  key: Key,
+		  lang: 'zh'
+		}
+	  })
+		.then(response => {
+		  const data = response.data;
+		  res.json({
+			resultCode: 0,
+			resultInfo: 'SUCCESS',
+			data: {
+			  results: {
+				...data,
+				updateTime: sd.format(data.updateTime, 'YYYY-MM-DD HH:mm:ss'),
+				obsTime: sd.format(data.now.obsTime, 'YYYY-MM-DD HH:mm:ss')
+			  }
+			}
+		  });
+		})
+		.catch(e => {
+		  res.json({ resultCode: -1, resultInfo: e.message || e.toString() });
+		});
+	};
+  
+	if (!isNull(Location_ID)) {
+	  fetchWeather(Location_ID);
+	} else {
+	  res.json({ resultCode: -1, resultInfo: '未输入城市id' });
+	}
+  });
 
 module.exports = router;

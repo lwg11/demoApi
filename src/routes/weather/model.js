@@ -24,7 +24,11 @@ w.Adm2_Name_ZH,
 w.Timezone,
 w.Latitude,
 w.Longitude,
-w.Adcode
+w.Adcode,
+w.createTime,
+w.creator,
+w.updateTime,
+w.updator
 FROM tf_weather_city w
 where 1=1
 AND w.Location_ID=? `;
@@ -45,12 +49,16 @@ w.Adm2_Name_ZH,
 w.Timezone,
 w.Latitude,
 w.Longitude,
-w.Adcode
+w.Adcode,
+w.createTime,
+w.creator,
+w.updateTime,
+w.updator
 FROM tf_weather_city w
 WHERE 1=1
 
 ${findOptionFormat(findOptions)}
-ORDER BY w.createTime desc, w.refId DESC`;
+ORDER BY w.createTime desc, w.Location_ID DESC`;
 
 // 获取总记录数
 const recordCount = (findOptions) => `
@@ -74,12 +82,16 @@ w.Adm2_Name_ZH,
 w.Timezone,
 w.Latitude,
 w.Longitude,
-w.Adcode
+w.Adcode,
+w.createTime,
+w.creator,
+w.updateTime,
+w.updator
 FROM tf_weather_city w
 WHERE 1=1 
 `
     + findOptionFormat(findOptions) +
-    ` ORDER BY ${order ? order : 'CONVERT (w.Location_Name_ZH USING gbk) ASC'}
+    ` ORDER BY ${order ? order : ' w.createTime desc,CONVERT (w.Location_Name_ZH USING gbk) ASC'}
 ${limit ? `LIMIT ?` : ''} `;
 
 // utf8mb4_general_ci
