@@ -64,7 +64,6 @@ router.post('/', (req, res) => {
                         res.json({ resultCode: -1, resultInfo: sqlError[result.error.errno] })
                     }
                 })
-
                 const user = {
                     userId: currentUser.userId,
                     userNo: currentUser.userNo,
@@ -78,6 +77,8 @@ router.post('/', (req, res) => {
                 user.createTime = currentUser.createTime;
                 user.updateTime = currentUser.updateTime;
                 user.isActive = currentUser.isActive;
+                user.roleId = currentUser.roleId;
+                user.roleName= currentUser.roleName;
 
                 user.menuList = [];
                 if (!isNull(currentUser.roleId)) {

@@ -522,4 +522,53 @@ router.post('/grantRole', jwtMiddleWare, (req, res) => {
 })
 
 
+/**
+ * @api {get} /system/user/current 1.12.当前用户
+ * @apiHeader {string} [Authorization] 登录成功后返回token
+ * @apiHeaderExample {json} Header-Example:
+ *     {
+ *       "Authorization": ""
+ *     } 
+ * @apiDescription 当前用户
+ * @apiName currentuser
+ * @apiGroup System
+ * @apiSuccess {json} resp_result
+ * @apiSuccessExample {json} Success-Response:
+ * {
+ *    "resultCode": 0,
+ *    "resultInfo": "SUCCESS",
+ *    "data": ""
+ * }
+ * @apiSampleRequest /system/user/current
+ * @apiVersion 1.0.0
+ */
+router.get('/current', jwtMiddleWare, function (req, res) {
+	console.log("req.user:" + JSON.stringify(req.user));
+	let sqlstr = `select 
+    a.userId,
+    a.userNo,
+    a.userName,
+    a.phone,
+    a.email,
+    a.headImage,
+    a.roleId,
+    r.roleName,
+    a.createTime,
+    a.creator,
+    a.updateTime,
+    a.updator 
+	from tb_system_user a
+	left join tb_system_role r on a.roleId=r.roleId
+	where a.userId=? `;
+	sql.query(sqlstr, [req.user.userId], (err, results) => {
+		if (err) {
+			console.error("err:", err.sqlMessage);
+			res.json({ resultCode: -1, resultInfo: sqlError[err.errno] });
+		}
+		res.json({ resultCode: 0, resultInfo: "SUCCESS", data: results[0] });
+	});
+});
+
+
+
 module.exports = router;

@@ -7,8 +7,26 @@ const { findOptionFormat } = require("../../utils/utils");
  */
 // const userList = `select userId,userNo,userName,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
 // from tb_system_user where userNo = ? and passWord = ?`
-const userList = `select userId,userNo,userName,passWord,phone,email,headImage,createTime,creator,updateTime,updator,delFlag,isActive,organizationId,roleId 
-from tb_system_user where (userNo = ? or phone = ?) and passWord = ?`
+const userList = `select 
+u.userId,
+u.userNo,
+u.userName,
+u.passWord,
+u.phone,
+u.email,
+u.headImage,
+u.createTime,
+u.creator,
+u.updateTime,
+u.updator,
+u.delFlag,
+u.isActive,
+u.organizationId,
+u.roleId,
+r.roleName
+from tb_system_user u
+left join tb_system_role r on u.roleId=r.roleId
+where (u.userNo = ? or u.phone = ?) and u.passWord = ? and u.delFlag= 0`
 
 /**
  * 查询用户信息 用于登录账号时查询该手机号是否已经注册
@@ -20,7 +38,18 @@ isActive,organizationId,roleId
 from tb_system_user where phone = ? and delFlag= 0`
 
 //查询角色表信息和菜单表信息
-const roleMenuList = `select m.menuId,m.menuName,m.menuCode,m.menuIcon,m.parentId,m.menuState,m.menuType,m.rightCode, m.menuSort 
+// r.roleCode,
+// r.roleName
+const roleMenuList = `select 
+m.menuId,
+m.menuName,
+m.menuCode,
+m.menuIcon,
+m.parentId,
+m.menuState,
+m.menuType,
+m.rightCode, 
+m.menuSort
 from tb_system_role_menu r
 left join tb_system_menu m on r.menuId=m.menuId
 where 1=1

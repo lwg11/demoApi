@@ -1,25 +1,19 @@
 // 导入所需的模块和中间件
 const express = require('express'); // 导入express模块
 const router = express.Router(); // 创建一个express路由实例
-const exception = require('../../exception'); // 导入自定义的异常处理模块
 const jwtMiddleWare = require('../../utils/middleWare'); // 导入自定义的jwt中间件
-
 const multer = require('multer'); // 导入multer模块，用于处理文件上传
-
 // const dest = "/home/dev/guangyuan/files/"; // 指定上传文件的目标目录
-// const dest = "F:/work/模型管理/model-management/"; // 设置为你本地文件系统的目标目录
-const dest = "F:/上传测试/"; // 设置为你本地文件系统的目标目录
+// const dest = "F:/上传测试/"; // 设置为你本地文件系统的目标目录
+const dest = "E:/myReact/api/demoApi/files/"; // 设置为你本地文件系统的目标目录
 const upload = multer({ dest: dest }); // 创建multer实例并指定文件上传的目标目录
-
 const fs = require('fs'); // 导入文件系统模块，用于文件操作
-
 const path = require('path'); // 导入路径模块，用于处理文件路径
 const Exception = require('../../exception'); // 导入自定义的异常处理类
 const { isNull } = require('../../utils/utils'); // 导入自定义的工具函数
-
 // const uploadFileDomin = "http://gy.democn.cn/"; // 文件上传的域名
-const uploadFileDomin = "http://localhost:9002/"; // 文件上传的域名
-
+// const uploadFileDomin = "http://localhost:9002/"; // 文件上传的域名
+const uploadFileDomin = "http://localhost:9002/files/"; // 文件上传的域名
 const MaxSize = 1024 * 1024 * 500; // 文件大小上限为500MB
 
 /**
@@ -60,10 +54,6 @@ router.post('/single', upload.single('file'), function (req, res, next) {
     console.log("req.file:", req.file);
     // 从上传的文件中获取文件信息
     const { originalname, mimetype, destination, filename, size } = req.file;
-
-    console.log('originalname--->',originalname);
-    console.log('size--->',size);
-
     if (size > MaxSize) {
         // 如果文件大小超过了上限，则抛出异常
         throw new Exception(-1, "上传文件:" + size + "，已超上限:" + MaxSize);
